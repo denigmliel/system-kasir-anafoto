@@ -64,7 +64,7 @@
             <h2 style="margin: 0 0 12px; font-size: 20px;">Modul Gudang</h2>
             <p class="muted" style="margin-bottom: 16px;">Kelola stok, pembelian, dan supplier.</p>
             <a href="{{ route('gudang.dashboard') }}" class="module-switch-button">
-                Ke Modul Gudang
+                Gudang
             </a>
         </div>
     </div>
