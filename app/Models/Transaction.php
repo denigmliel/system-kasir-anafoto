@@ -30,11 +30,19 @@ class Transaction extends Model
         return $this->hasMany(TransactionDetail::class);
     }
 
-    public static function generateCode()
+    public static function generateCode(): string
     {
-        $date = date('Ymd');
-        $last = self::whereDate('created_at', today())->latest()->first();
-        $number = $last ? intval(substr($last->code, -4)) + 1 : 1;
-        return 'TRX' . $date . str_pad($number, 4, '0', STR_PAD_LEFT);
+        $datePart = now()->format('Ymd');
+        $prefix = 'TRX' . $datePart;
+
+        $lastCode = static::where('code', 'like', $prefix . '%')
+            ->orderByDesc('code')
+            ->lockForUpdate()
+            ->value('code');
+
+        $lastNumber = $lastCode ? (int) substr($lastCode, -4) : 0;
+        $nextNumber = $lastNumber + 1;
+
+        return $prefix . str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }

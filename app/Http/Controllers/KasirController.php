@@ -9,6 +9,7 @@ use App\Models\Setting;
 use App\Models\StockMovement;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -199,16 +200,31 @@ class KasirController extends Controller
                 ]);
             }
 
-            $transaction = Transaction::create([
-                'code' => Transaction::generateCode(),
-                'user_id' => $user->id,
-                'transaction_date' => now(),
-                'subtotal' => $grossSubtotal,
-                'total_amount' => $totalAmount,
-                'payment_method' => $data['payment_method'],
-                'payment_amount' => $data['payment_amount'],
-                'change_amount' => $data['payment_amount'] - $totalAmount,
-            ]);
+            $transaction = null;
+            $maxAttempts = 5;
+
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                try {
+                    $transaction = Transaction::create([
+                        'code' => Transaction::generateCode(),
+                        'user_id' => $user->id,
+                        'transaction_date' => now(),
+                        'subtotal' => $grossSubtotal,
+                        'total_amount' => $totalAmount,
+                        'payment_method' => $data['payment_method'],
+                        'payment_amount' => $data['payment_amount'],
+                        'change_amount' => $data['payment_amount'] - $totalAmount,
+                    ]);
+
+                    break;
+                } catch (QueryException $exception) {
+                    $isDuplicateCode = (int) $exception->getCode() === 23000;
+
+                    if (! $isDuplicateCode || $attempt === $maxAttempts) {
+                        throw $exception;
+                    }
+                }
+            }
 
             foreach ($detailsPayload as $detail) {
                 $stockDeduction = $detail['stock_deduction'] ?? 0;
