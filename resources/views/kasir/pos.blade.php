@@ -459,7 +459,12 @@
                 Pilih produk dan tentukan jumlah. Sistem akan otomatis menghitung subtotal dan kembalian.
             </p>
 
-            <form method="POST" action="{{ route('kasir.transaction.create') }}" id="pos-form">
+            <form
+                method="POST"
+                action="{{ route('kasir.transaction.create') }}"
+                id="pos-form"
+                data-has-old-input="{{ old('_token') ? '1' : '0' }}"
+            >
                 @csrf
 
                 @php
@@ -869,6 +874,22 @@
             const lowStockAlert = document.getElementById('low-stock-alert');
             const lowStockList = document.getElementById('low-stock-alert-list');
             const LOW_STOCK_THRESHOLD = 5;
+            const POS_DRAFT_STORAGE_KEY = 'pos_form_draft_v1';
+            const hasOldInput = posForm ? posForm.dataset.hasOldInput === '1' : false;
+            const canUseDraftStorage = (() => {
+                try {
+                    if (typeof window === 'undefined' || !window.localStorage) {
+                        return false;
+                    }
+                    const testKey = '__pos_draft_test__';
+                    window.localStorage.setItem(testKey, '1');
+                    window.localStorage.removeItem(testKey);
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            })();
+            let isRestoringDraft = false;
 
             let rowIndex = itemsBody.querySelectorAll('.item-row').length;
 
@@ -914,6 +935,157 @@
 
                 paymentAmountHidden.value = digits;
                 paymentAmountDisplay.value = formatWithGrouping(digits);
+            }
+
+            function serializeFormState() {
+                if (!itemsBody) {
+                    return null;
+                }
+
+                const items = Array.from(itemsBody.querySelectorAll('.item-row')).map((row) => {
+                    const categorySelect = row.querySelector('.category-select');
+                    const productSelect = row.querySelector('.product-select');
+                    const unitSelect = row.querySelector('.unit-select');
+                    const quantityInput = row.querySelector('.quantity-input');
+
+                    return {
+                        category_id: categorySelect ? categorySelect.value : '',
+                        product_id: productSelect ? productSelect.value : '',
+                        product_unit_id: unitSelect ? unitSelect.value : '',
+                        quantity: quantityInput ? quantityInput.value : '',
+                    };
+                });
+
+                return {
+                    payment_method: paymentMethodSelect ? paymentMethodSelect.value : '',
+                    payment_amount: paymentAmountHidden ? paymentAmountHidden.value : '',
+                    items,
+                };
+            }
+
+            function persistFormState() {
+                if (!canUseDraftStorage || isRestoringDraft) {
+                    return;
+                }
+
+                const state = serializeFormState();
+                if (!state) {
+                    return;
+                }
+
+                try {
+                    window.localStorage.setItem(POS_DRAFT_STORAGE_KEY, JSON.stringify(state));
+                } catch (error) {
+                    console.warn('Gagal menyimpan draft POS', error);
+                }
+            }
+
+            function clearPersistedFormState() {
+                if (!canUseDraftStorage) {
+                    return;
+                }
+
+                try {
+                    window.localStorage.removeItem(POS_DRAFT_STORAGE_KEY);
+                } catch (error) {
+                    console.warn('Gagal menghapus draft POS', error);
+                }
+            }
+
+            function hydrateRowFromData(row, data = {}) {
+                if (!row || !data || typeof data !== 'object') {
+                    return;
+                }
+
+                const toValue = (value) => {
+                    if (value === undefined || value === null) {
+                        return '';
+                    }
+                    return String(value);
+                };
+
+                const categorySelect = row.querySelector('.category-select');
+                if (categorySelect && Object.prototype.hasOwnProperty.call(data, 'category_id')) {
+                    categorySelect.value = toValue(data.category_id);
+                    categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                const productSelect = row.querySelector('.product-select');
+                if (productSelect && Object.prototype.hasOwnProperty.call(data, 'product_id')) {
+                    productSelect.value = toValue(data.product_id);
+                    productSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                const unitSelect = row.querySelector('.unit-select');
+                if (unitSelect && Object.prototype.hasOwnProperty.call(data, 'product_unit_id')) {
+                    unitSelect.value = toValue(data.product_unit_id);
+                    unitSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                const quantityInput = row.querySelector('.quantity-input');
+                if (quantityInput && Object.prototype.hasOwnProperty.call(data, 'quantity')) {
+                    quantityInput.value = data.quantity ?? '';
+                    quantityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                updateRow(row);
+            }
+
+            function restorePersistedFormState() {
+                if (!canUseDraftStorage) {
+                    return false;
+                }
+
+                let rawState = null;
+                try {
+                    rawState = window.localStorage.getItem(POS_DRAFT_STORAGE_KEY);
+                } catch (error) {
+                    console.warn('Gagal membaca draft POS', error);
+                    return false;
+                }
+
+                if (!rawState) {
+                    return false;
+                }
+
+                let state = null;
+                try {
+                    state = JSON.parse(rawState);
+                } catch (error) {
+                    console.warn('Format draft POS tidak valid, menghapus data lama');
+                    clearPersistedFormState();
+                    return false;
+                }
+
+                if (!state || !Array.isArray(state.items)) {
+                    return false;
+                }
+
+                isRestoringDraft = true;
+                try {
+                    if (itemsBody) {
+                        itemsBody.innerHTML = '';
+                        rowIndex = 0;
+                        const rowsData = state.items.length ? state.items : [{}];
+                        rowsData.forEach((itemData) => {
+                            addRow(itemData);
+                        });
+                    }
+
+                    if (paymentMethodSelect && state.payment_method) {
+                        paymentMethodSelect.value = state.payment_method;
+                        paymentMethodSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    if (state.payment_amount !== undefined && state.payment_amount !== null) {
+                        setPaymentAmountFromDigits(String(state.payment_amount));
+                    }
+                } finally {
+                    isRestoringDraft = false;
+                }
+
+                updateTotals();
+                return true;
             }
 
             function calculateCurrentTotal() {
@@ -1894,12 +2066,13 @@
                     }
                     row.remove();
                     updateTotals();
+                    persistFormState();
                 });
 
                 updateRow(row);
             }
 
-            function addRow() {
+            function addRow(prefillData = null) {
                 const fragment = template.content.cloneNode(true);
 
                 fragment.querySelectorAll('[data-name]').forEach((input) => {
@@ -1910,17 +2083,28 @@
                 const row = fragment.querySelector('.item-row');
                 itemsBody.appendChild(row);
                 attachRowEvents(row);
+                if (prefillData) {
+                    hydrateRowFromData(row, prefillData);
+                }
 
                 rowIndex += 1;
+                persistFormState();
             }
 
             addItemBtn.addEventListener('click', function () {
                 addRow();
             });
 
-            itemsBody.querySelectorAll('.item-row').forEach((row) => {
-                attachRowEvents(row);
-            });
+            let restoredFromDraft = false;
+            if (!hasOldInput) {
+                restoredFromDraft = restorePersistedFormState();
+            }
+
+            if (!restoredFromDraft) {
+                itemsBody.querySelectorAll('.item-row').forEach((row) => {
+                    attachRowEvents(row);
+                });
+            }
 
             if (paymentMethodSelect) {
                 paymentMethodSelect.addEventListener('change', () => {
@@ -1942,10 +2126,18 @@
             }
 
             if (posForm) {
+                const handleFormMutation = () => {
+                    persistFormState();
+                };
+
+                posForm.addEventListener('input', handleFormMutation);
+                posForm.addEventListener('change', handleFormMutation);
+
                 posForm.addEventListener('submit', () => {
                     if (paymentAmountDisplay) {
                         syncPaymentInputs(paymentAmountDisplay.value);
                     }
+                    clearPersistedFormState();
                 });
 
                 posForm.addEventListener('reset', () => {
@@ -1953,6 +2145,7 @@
                         if (paymentAmountDisplay) {
                             syncPaymentInputs(paymentAmountDisplay.value);
                         }
+                        clearPersistedFormState();
                     });
                 });
             }

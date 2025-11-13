@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -66,6 +67,7 @@ class KasirController extends Controller
             ->sum('quantity');
 
         return view('kasir.dashboard', [
+            'todayDateLabel' => Carbon::now()->translatedFormat('d M Y'),
             'todaySalesTotal' => $todaySalesTotal,
             'todayTransactions' => $todayTransactions,
             'todayTransactionCount' => $todayTransactions->count(),

@@ -61,7 +61,7 @@
 
         .category-select-wrapper .category-search-input {
             display: none;
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
 
         .category-select-wrapper--enhanced .category-search-input {
@@ -74,7 +74,7 @@
 
         .category-suggestions {
             position: absolute;
-            top: calc(100% + 4px);
+            top: calc(100% + 12px);
             left: 0;
             right: 0;
             display: none;

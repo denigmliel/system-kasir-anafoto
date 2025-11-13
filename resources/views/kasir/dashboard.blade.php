@@ -8,6 +8,9 @@
     <div class="grid grid-3">
         <div class="card">
             <div class="muted">Penjualan Hari Ini</div>
+            <div class="muted" style="margin-top: 4px; font-size: 13px;">
+                {{ $todayDateLabel }}
+            </div>
             <div style="font-size: 28px; font-weight: 700; margin-top: 8px;">
                 Rp{{ number_format($todaySalesTotal, 0, ',', '.') }}
             </div>
