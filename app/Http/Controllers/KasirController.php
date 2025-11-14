@@ -61,6 +61,14 @@ class KasirController extends Controller
             ->orderBy('date')
             ->get();
 
+        $monthlySalesLabels = $monthlySales
+            ->map(fn ($summary) => Carbon::parse($summary->date)->translatedFormat('d M'))
+            ->values();
+
+        $monthlySalesTotals = $monthlySales
+            ->map(fn ($summary) => (int) $summary->total)
+            ->values();
+
         $todaySalesTotal = $todayTransactions->sum('total_amount');
         $todayItemsSold = $todayTransactions
             ->flatMap(fn ($transaction) => $transaction->details)
@@ -75,11 +83,15 @@ class KasirController extends Controller
             'recentTransactions' => $recentTransactions,
             'topProducts' => $topProducts,
             'monthlySales' => $monthlySales,
+            'monthlySalesLabels' => $monthlySalesLabels,
+            'monthlySalesTotals' => $monthlySalesTotals,
         ]);
     }
 
-    public function pos()
+    public function pos(Request $request)
     {
+        $user = Auth::user();
+
         $products = Product::query()
             ->where('is_active', true)
             ->with(['units', 'category'])
@@ -94,23 +106,86 @@ class KasirController extends Controller
             'transfer' => 'Transfer',
         ];
 
-        return view('kasir.pos', compact('products', 'paymentMethods', 'categories'));
+        $editingTransactionPayload = null;
+
+        if ($request->filled('transaction')) {
+            $editingTransaction = Transaction::with(['details.product.units'])
+                ->where('user_id', $user->id)
+                ->find($request->input('transaction'));
+
+            if ($editingTransaction) {
+                $editingTransactionPayload = $this->buildTransactionPrefillPayload($editingTransaction);
+            }
+        }
+
+        return view('kasir.pos', [
+            'products' => $products,
+            'paymentMethods' => $paymentMethods,
+            'categories' => $categories,
+            'editingTransaction' => $editingTransactionPayload,
+        ]);
+    }
+
+    protected function buildTransactionPrefillPayload(Transaction $transaction): array
+    {
+        $transaction->loadMissing(['details.product.units', 'details.product.category']);
+
+        $items = $transaction->details
+            ->map(function (TransactionDetail $detail) {
+                $product = $detail->product;
+
+                if (! $product) {
+                    return null;
+                }
+
+                $matchedUnit = $product->units
+                    ? $product->units->firstWhere('name', $detail->unit)
+                    : null;
+
+                if (! $matchedUnit && $product->units) {
+                    $matchedUnit = $product->units->first();
+                }
+
+                return [
+                    'product_id' => $product->id,
+                    'product_unit_id' => optional($matchedUnit)->id,
+                    'quantity' => (int) $detail->quantity,
+                    'category_id' => $product->category_id,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return [
+            'id' => $transaction->id,
+            'code' => $transaction->code,
+            'items' => $items,
+            'payment_method' => $transaction->payment_method,
+            'payment_amount' => (int) $transaction->payment_amount,
+        ];
     }
 
     public function createTransaction(Request $request)
     {
+        $user = Auth::user();
+
         $data = $request->validate([
             'payment_method' => ['required', Rule::in(['cash', 'transfer', 'qris'])],
             'payment_amount' => ['required', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_unit_id' => ['required', 'exists:product_units,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'transaction_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('transactions', 'id')->where(fn ($query) => $query->where('user_id', $user->id)),
+            ],
         ], [
             'items.required' => 'Tambahkan minimal satu produk ke dalam transaksi.',
             'items.*.product_unit_id.exists' => 'Satuan produk yang dipilih tidak ditemukan.',
         ]);
 
-        $user = Auth::user();
         $items = collect($data['items'])->map(function ($item) {
             return [
                 'product_unit_id' => (int) $item['product_unit_id'],
@@ -118,7 +193,9 @@ class KasirController extends Controller
             ];
         });
 
-        $transaction = DB::transaction(function () use ($items, $user, $data) {
+        $transactionId = isset($data['transaction_id']) ? (int) $data['transaction_id'] : null;
+
+        $transaction = DB::transaction(function () use ($items, $user, $data, $transactionId) {
             $unitIds = $items->pluck('product_unit_id')->all();
 
             /** @var \Illuminate\Support\Collection<int,\App\Models\ProductUnit> $productUnits */
@@ -127,10 +204,23 @@ class KasirController extends Controller
                 ->get()
                 ->keyBy('id');
 
-            $productIds = $productUnits->pluck('product_id')->unique()->values()->all();
+            $productIds = $productUnits->pluck('product_id')->unique();
+            $transactionToUpdate = null;
+
+            if ($transactionId) {
+                $transactionToUpdate = Transaction::with('details')
+                    ->where('user_id', $user->id)
+                    ->lockForUpdate()
+                    ->findOrFail($transactionId);
+
+                $productIds = $productIds
+                    ->merge($transactionToUpdate->details->pluck('product_id'))
+                    ->unique();
+            }
+            $productIdList = $productIds->values()->all();
 
             /** @var \Illuminate\Support\Collection<int,\App\Models\Product> $products */
-            $products = Product::whereIn('id', $productIds)
+            $products = Product::whereIn('id', $productIdList)
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
@@ -203,28 +293,56 @@ class KasirController extends Controller
                 ]);
             }
 
-            $transaction = null;
-            $maxAttempts = 5;
+            if ($transactionToUpdate) {
+                $movements = StockMovement::where('reference_type', 'transaction')
+                    ->where('reference_id', $transactionToUpdate->id)
+                    ->get();
 
-            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
-                try {
-                    $transaction = Transaction::create([
-                        'code' => Transaction::generateCode(),
-                        'user_id' => $user->id,
-                        'transaction_date' => now(),
-                        'subtotal' => $grossSubtotal,
-                        'total_amount' => $totalAmount,
-                        'payment_method' => $data['payment_method'],
-                        'payment_amount' => $data['payment_amount'],
-                        'change_amount' => $data['payment_amount'] - $totalAmount,
-                    ]);
+                foreach ($movements as $movement) {
+                    $product = $products->get($movement->product_id);
 
-                    break;
-                } catch (QueryException $exception) {
-                    $isDuplicateCode = (int) $exception->getCode() === 23000;
+                    if ($product && ! $product->is_stock_unlimited && $movement->type === 'out') {
+                        $product->increment('stock', $movement->quantity);
+                    }
 
-                    if (! $isDuplicateCode || $attempt === $maxAttempts) {
-                        throw $exception;
+                    $movement->delete();
+                }
+
+                $transactionToUpdate->details()->delete();
+
+                $transactionToUpdate->update([
+                    'subtotal' => $grossSubtotal,
+                    'total_amount' => $totalAmount,
+                    'payment_method' => $data['payment_method'],
+                    'payment_amount' => $data['payment_amount'],
+                    'change_amount' => $data['payment_amount'] - $totalAmount,
+                ]);
+
+                $transaction = $transactionToUpdate;
+            } else {
+                $transaction = null;
+                $maxAttempts = 5;
+
+                for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                    try {
+                        $transaction = Transaction::create([
+                            'code' => Transaction::generateCode(),
+                            'user_id' => $user->id,
+                            'transaction_date' => now(),
+                            'subtotal' => $grossSubtotal,
+                            'total_amount' => $totalAmount,
+                            'payment_method' => $data['payment_method'],
+                            'payment_amount' => $data['payment_amount'],
+                            'change_amount' => $data['payment_amount'] - $totalAmount,
+                        ]);
+
+                        break;
+                    } catch (QueryException $exception) {
+                        $isDuplicateCode = (int) $exception->getCode() === 23000;
+
+                        if (! $isDuplicateCode || $attempt === $maxAttempts) {
+                            throw $exception;
+                        }
                     }
                 }
             }
@@ -256,9 +374,13 @@ class KasirController extends Controller
             return $transaction;
         });
 
+        $message = $transactionId
+            ? 'Transaksi berhasil diperbarui.'
+            : 'Transaksi berhasil disimpan.';
+
         return redirect()
             ->route('kasir.pos')
-            ->with('success', 'Transaksi berhasil disimpan.')
+            ->with('success', $message)
             ->with('print_transaction_id', $transaction->id);
     }
 

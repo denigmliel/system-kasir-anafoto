@@ -70,7 +70,10 @@
             @if ($monthlySales->isEmpty())
                 <p class="muted">Belum ada transaksi pada bulan ini.</p>
             @else
-                <table class="data-table">
+                <div style="position: relative; height: 260px;">
+                    <canvas id="monthly-sales-chart"></canvas>
+                </div>
+                <table class="data-table" style="margin-top: 16px;">
                     <thead>
                         <tr>
                             <th>Tanggal</th>
@@ -121,3 +124,124 @@
         @endif
     </div>
 @endsection
+
+@push('scripts')
+    @if (!$monthlySales->isEmpty())
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const canvas = document.getElementById('monthly-sales-chart');
+
+                if (!canvas) {
+                    return;
+                }
+
+                const ctx = canvas.getContext('2d');
+                const height = canvas.clientHeight || 260;
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, 'rgba(220, 38, 38, 0.35)');
+                gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
+
+                const salesData = @json($monthlySalesTotals);
+                const maxValue = salesData.length ? Math.max(...salesData) : 0;
+                const suggestedMax = Math.max(100000, Math.ceil(maxValue / 100000) * 100000);
+
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: @json($monthlySalesLabels),
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Total Penjualan',
+                                data: salesData,
+                                backgroundColor: 'rgba(239, 68, 68, 0.35)',
+                                borderColor: 'rgba(220, 38, 38, 0.65)',
+                                borderWidth: 1.5,
+                                borderRadius: 8,
+                                barPercentage: 0.7,
+                                categoryPercentage: 0.6,
+                                maxBarThickness: 28,
+                                order: 2,
+                            },
+                            {
+                                type: 'line',
+                                label: 'Tren Penjualan',
+                                data: salesData,
+                                fill: true,
+                                backgroundColor: gradient,
+                                borderColor: '#b91c1c',
+                                borderWidth: 3,
+                                pointBackgroundColor: '#b91c1c',
+                                pointHoverBackgroundColor: '#7f1d1d',
+                                pointBorderColor: '#fff',
+                                pointHoverBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                tension: 0.35,
+                                order: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax,
+                                ticks: {
+                                    stepSize: 100000,
+                                    callback: (value) => new Intl.NumberFormat('id-ID', {
+                                        maximumFractionDigits: 0,
+                                    }).format(value),
+                                    padding: 8,
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.25)',
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                            },
+                        },
+                        layout: {
+                            padding: {
+                                top: 8,
+                                right: 12,
+                                bottom: 4,
+                                left: 0,
+                            },
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                filter: (tooltipItem) => tooltipItem.datasetIndex === 1,
+                                displayColors: false,
+                                callbacks: {
+                                    label: (context) => {
+                                        const value = context.parsed.y ?? 0;
+                                        return `Total: ${new Intl.NumberFormat('id-ID', {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                            maximumFractionDigits: 0,
+                                        }).format(value)}`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            });
+        </script>
+    @endif
+@endpush

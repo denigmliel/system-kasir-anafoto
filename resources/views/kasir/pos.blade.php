@@ -119,6 +119,26 @@
             line-height: 1.5;
         }
 
+        .editing-notice {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid #fcd34d;
+            background-color: #fffbeb;
+            color: #92400e;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .editing-notice__actions {
+            display: inline-flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
         .items-table-wrapper {
             position: relative;
             overflow: visible;
@@ -454,21 +474,65 @@
 
     <div class="grid" style="gap: 24px; grid-template-columns: minmax(0, 1fr);">
         <div class="card">
-            <h2 style="margin: 0 0 12px; font-size: 20px;">Transaksi Baru</h2>
+            <h2 style="margin: 0 0 12px; font-size: 20px;">
+                {{ $editingTransaction ? 'Perbarui Transaksi' : 'Transaksi Baru' }}
+            </h2>
             <p class="muted" style="margin-bottom: 20px;">
-                Pilih produk dan tentukan jumlah. Sistem akan otomatis menghitung subtotal dan kembalian.
+                @if ($editingTransaction)
+                    Anda sedang mengubah transaksi <strong>{{ $editingTransaction['code'] ?? '' }}</strong>. Sesuaikan item atau pembayaran lalu simpan untuk memperbarui data.
+                @else
+                    Pilih produk dan tentukan jumlah. Sistem akan otomatis menghitung subtotal dan kembalian.
+                @endif
             </p>
+
+            @if ($editingTransaction)
+                <div class="editing-notice">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">
+                            Mengedit transaksi {{ $editingTransaction['code'] ?? '' }}
+                        </div>
+                        <div style="font-size: 14px;">
+                            Tambahkan produk atau ubah jumlah, kemudian simpan untuk memperbarui struk.
+                        </div>
+                    </div>
+                    <div class="editing-notice__actions">
+                        <a
+                            href="{{ route('kasir.transaction.print', $editingTransaction['id']) }}"
+                            class="btn btn-secondary"
+                            target="_blank"
+                        >
+                            Cetak Terakhir
+                        </a>
+                        <a href="{{ route('kasir.pos') }}" class="btn btn-danger">
+                            Batalkan Edit
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            @php
+                $defaultPaymentMethod = $editingTransaction['payment_method'] ?? 'cash';
+                $paymentSeed = $editingTransaction['payment_amount'] ?? null;
+                $prefilledItems = $editingTransaction['items'] ?? null;
+                $formHasOldInput = old('_token') ? true : false;
+            @endphp
 
             <form
                 method="POST"
                 action="{{ route('kasir.transaction.create') }}"
                 id="pos-form"
-                data-has-old-input="{{ old('_token') ? '1' : '0' }}"
+                data-has-old-input="{{ ($formHasOldInput || $editingTransaction) ? '1' : '0' }}"
+                data-editing="{{ $editingTransaction ? '1' : '0' }}"
             >
                 @csrf
+                <input
+                    type="hidden"
+                    name="transaction_id"
+                    value="{{ old('transaction_id', $editingTransaction['id'] ?? '') }}"
+                >
 
                 @php
-                    $oldPaymentAmount = old('payment_amount');
+                    $oldPaymentAmount = old('payment_amount', $paymentSeed);
                     if (is_numeric($oldPaymentAmount)) {
                         $oldPaymentNumeric = (string) (int) $oldPaymentAmount;
                     } elseif (is_string($oldPaymentAmount)) {
@@ -483,7 +547,7 @@
                         <label class="form-label" for="payment_method">Metode Pembayaran</label>
                         <select name="payment_method" id="payment_method" class="form-select">
                             @foreach ($paymentMethods as $value => $label)
-                                <option value="{{ $value }}" @selected(old('payment_method', 'cash') === $value)>
+                                <option value="{{ $value }}" @selected(old('payment_method', $defaultPaymentMethod) === $value)>
                                     {{ $label }}
                                 </option>
                             @endforeach
@@ -514,9 +578,10 @@
                 </div>
 
                 @php
-                    $oldItems = old('items', [
+                    $defaultItems = [
                         ['category_id' => null, 'product_id' => null, 'product_unit_id' => null, 'quantity' => 1],
-                    ]);
+                    ];
+                    $oldItems = old('items', $prefilledItems ?: $defaultItems);
                 @endphp
 
                 <div class="card" style="padding: 32px; border: 1px dashed #d0d5dd; background-color: #f9fbff;">
@@ -876,6 +941,7 @@
             const LOW_STOCK_THRESHOLD = 5;
             const POS_DRAFT_STORAGE_KEY = 'pos_form_draft_v1';
             const hasOldInput = posForm ? posForm.dataset.hasOldInput === '1' : false;
+            const isEditing = posForm ? posForm.dataset.editing === '1' : false;
             const canUseDraftStorage = (() => {
                 try {
                     if (typeof window === 'undefined' || !window.localStorage) {
@@ -892,6 +958,10 @@
             let isRestoringDraft = false;
 
             let rowIndex = itemsBody.querySelectorAll('.item-row').length;
+
+            if (isEditing) {
+                clearPersistedFormState();
+            }
 
             function formatCurrency(value) {
                 return new Intl.NumberFormat('id-ID', {
@@ -2096,7 +2166,7 @@
             });
 
             let restoredFromDraft = false;
-            if (!hasOldInput) {
+            if (!hasOldInput && !isEditing) {
                 restoredFromDraft = restorePersistedFormState();
             }
 

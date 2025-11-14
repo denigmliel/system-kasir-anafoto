@@ -55,6 +55,27 @@
             transform: translateY(0);
             box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
         }
+
+        .history-table-wrapper {
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .history-table-wrapper--scrollable {
+            max-height: 460px; /* approx. 10 rows */
+            overflow-y: auto;
+            border: none;
+        }
+
+        .history-table-wrapper--scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-table-wrapper--scrollable::-webkit-scrollbar-thumb {
+            background-color: rgba(148, 163, 184, 0.6);
+            border-radius: 999px;
+        }
     </style>
 @endpush
 
@@ -97,40 +118,51 @@
         @if ($transactions->isEmpty())
             <p class="muted">Belum ada transaksi sesuai filter yang dipilih.</p>
         @else
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Kode</th>
-                        <th>Tanggal</th>
-                        <th>Metode</th>
-                        <th>Item</th>
-                        <th>Total</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($transactions as $transaction)
+            @php($scrollable = $transactions->count() > 10)
+            <div class="history-table-wrapper {{ $scrollable ? 'history-table-wrapper--scrollable' : '' }}">
+                <table class="data-table" style="margin-bottom: 0;">
+                    <thead>
                         <tr>
-                            <td>{{ $transaction->code }}</td>
-                            <td>{{ $transaction->transaction_date->timezone($displayTimezone)->format('d/m/Y H:i:s') }}</td>
-                            <td>
-                                <span class="badge">{{ ucfirst($transaction->payment_method) }}</span>
-                            </td>
-                            <td>{{ $transaction->details_count }}</td>
-                            <td>Rp{{ number_format($transaction->total_amount, 0, ',', '.') }}</td>
-                            <td>
-                                <a
-                                    class="btn btn-secondary"
-                                    href="{{ route('kasir.transaction.print', $transaction->id) }}"
-                                    target="_blank"
-                                >
-                                    Cetak
-                                </a>
-                            </td>
+                            <th>Kode</th>
+                            <th>Tanggal</th>
+                            <th>Metode</th>
+                            <th>Item</th>
+                            <th>Total</th>
+                            <th></th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($transactions as $transaction)
+                            <tr>
+                                <td>{{ $transaction->code }}</td>
+                                <td>{{ $transaction->transaction_date->timezone($displayTimezone)->format('d/m/Y H:i:s') }}</td>
+                                <td>
+                                    <span class="badge">{{ ucfirst($transaction->payment_method) }}</span>
+                                </td>
+                                <td>{{ $transaction->details_count }}</td>
+                                <td>Rp{{ number_format($transaction->total_amount, 0, ',', '.') }}</td>
+                            <td>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <a
+                                        class="btn btn-secondary"
+                                        href="{{ route('kasir.transaction.print', $transaction->id) }}"
+                                        target="_blank"
+                                    >
+                                        Cetak
+                                    </a>
+                                    <a
+                                        class="btn btn-primary"
+                                        href="{{ route('kasir.pos', ['transaction' => $transaction->id]) }}"
+                                    >
+                                        Tambah Produk
+                                    </a>
+                                </div>
+                            </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
             <div style="margin-top: 16px;">
                 {{ $transactions->links() }}
