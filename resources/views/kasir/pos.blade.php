@@ -1239,10 +1239,13 @@
                     return;
                 }
 
-                const isQris = paymentMethodSelect.value === 'qris';
-                paymentAmountDisplay.readOnly = isQris;
+                const method = paymentMethodSelect.value;
+                const autoFillMethods = ['qris', 'transfer'];
+                const readOnlyMethods = ['qris'];
 
-                if (!isQris) {
+                paymentAmountDisplay.readOnly = readOnlyMethods.includes(method);
+
+                if (!autoFillMethods.includes(method)) {
                     return;
                 }
 

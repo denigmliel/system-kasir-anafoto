@@ -95,6 +95,13 @@
             padding-top: 10px;
         }
 
+        .account-info {
+            font-size: 11px;
+            margin: 6px 0;
+            padding-left: 5px;
+            line-height: 1.3;
+        }
+
         .footer {
             text-align: center;
             margin-top: 15px;
@@ -149,11 +156,22 @@
             </div>
         </div>
 
+        @php
+            $showBankAccount = in_array(strtolower($transaction->payment_method), ['transfer', 'rekening'], true);
+        @endphp
+
         <div class="payment">
             <div class="total-row">
                 <span><strong>Bayar ({{ ucfirst($transaction->payment_method) }}):</strong></span>
                 <span><strong>Rp{{ number_format($transaction->payment_amount, 0, ',', '.') }}</strong></span>
             </div>
+            @if ($showBankAccount)
+                <div class="account-info">
+                    <div><strong>Rekening:</strong></div>
+                    <div>Jhonny Situmorang</div>
+                    <div>723801007592539 (BRI)</div>
+                </div>
+            @endif
             <div class="total-row">
                 <span><strong>Kembali:</strong></span>
                 <span><strong>Rp{{ number_format($transaction->change_amount, 0, ',', '.') }}</strong></span>

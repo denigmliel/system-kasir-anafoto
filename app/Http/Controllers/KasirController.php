@@ -19,11 +19,6 @@ use Illuminate\Validation\ValidationException;
 
 class KasirController extends Controller
 {
-    private const UNIT_STOCK_MULTIPLIERS = [
-        'PACK' => 10,
-        'BOX' => 6,
-        'LUSIN' => 12,
-    ];
 
     public function dashboard()
     {
@@ -390,10 +385,7 @@ class KasirController extends Controller
             return 0;
         }
 
-        $multiplier = self::UNIT_STOCK_MULTIPLIERS[strtoupper((string) $unit->name)] ?? 1;
-        $multiplier = max(1, (int) $multiplier);
-
-        return max(0, $quantity) * $multiplier;
+        return max(0, $quantity);
     }
 
     public function transactionHistory(Request $request)
