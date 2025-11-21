@@ -400,6 +400,12 @@
             @if ($mode === 'edit')
                 @method('PUT')
             @endif
+            @php
+                $returnTo = old('redirect_to', $redirectTo ?? request('redirect_to'));
+            @endphp
+            @if ($returnTo)
+                <input type="hidden" name="redirect_to" value="{{ $returnTo }}">
+            @endif
 
     @php
         $allowedUnits = isset($allowedUnits)

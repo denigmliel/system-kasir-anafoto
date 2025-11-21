@@ -168,8 +168,8 @@
             @if ($showBankAccount)
                 <div class="account-info">
                     <div><strong>Rekening:</strong></div>
-                    <div>Jhonny Situmorang</div>
-                    <div>723801007592539 (BRI)</div>
+                    <div><strong>Jhonny Situmorang</strong></div>
+                    <div><strong>723801007592539 (BRI)</strong></div>
                 </div>
             @endif
             <div class="total-row">

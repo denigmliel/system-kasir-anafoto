@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 class GudangController extends Controller
 {
     private const ALLOWED_UNIT_NAMES = ['PCS', 'PACK', 'BOX', 'RIM', 'LEMBAR', 'LUSIN'];
-    private const LOW_STOCK_THRESHOLD = 5;
+    private const LOW_STOCK_THRESHOLD = 3;
 
     public function dashboard()
     {
@@ -265,16 +265,18 @@ class GudangController extends Controller
         return view('gudang.products.show', compact('product', 'recentMovements'));
     }
 
-    public function productsEdit(Product $product)
+    public function productsEdit(Request $request, Product $product)
     {
         $product->load('units');
         $categories = Category::orderBy('name')->get();
+        $redirectTo = $this->normalizeRedirectUrl($request->input('redirect_to'));
 
         return view('gudang.products.form', [
             'product' => $product,
             'categories' => $categories,
             'allowedUnits' => self::ALLOWED_UNIT_NAMES,
             'mode' => 'edit',
+            'redirectTo' => $redirectTo,
         ]);
     }
 
@@ -303,6 +305,7 @@ class GudangController extends Controller
         ]);
 
         [$stockValue, $isStockUnlimited] = $this->normalizeStockInput($data['stock']);
+        $redirectTo = $this->normalizeRedirectUrl($request->input('redirect_to'));
 
         $units = collect($data['units'])
             ->map(function (array $unit) {
@@ -390,8 +393,10 @@ class GudangController extends Controller
             ]);
         }
 
+        $target = $redirectTo ?: route('gudang.products.show', $product);
+
         return redirect()
-            ->route('gudang.products.show', $product)
+            ->to($target)
             ->with('success', 'Produk berhasil diperbarui.');
     }
 
@@ -423,6 +428,19 @@ class GudangController extends Controller
         return $categoryId !== null && $categoryId !== ''
             ? (int) $categoryId
             : null;
+    }
+
+    private function normalizeRedirectUrl(?string $redirect): ?string
+    {
+        if (! $redirect) {
+            return null;
+        }
+
+        if (Str::startsWith($redirect, ['/', url('/')])) {
+            return $redirect;
+        }
+
+        return null;
     }
 
     private function isValidStockInput($value): bool

@@ -397,7 +397,7 @@
                             <td>{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</td>
                             <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
                                 <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--yellow">Detail</a>
-                                <a href="{{ route('gudang.products.edit', $product) }}" class="chip-button chip-button--blue">Edit</a>
+                                <a href="{{ route('gudang.products.edit', $product) }}?redirect_to={{ urlencode(request()->fullUrl()) }}" class="chip-button chip-button--blue">Edit</a>
                                 <form
                                     method="POST"
                                     action="{{ route('gudang.products.destroy', $product) }}"

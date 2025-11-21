@@ -938,7 +938,7 @@
             const posForm = document.getElementById('pos-form');
             const lowStockAlert = document.getElementById('low-stock-alert');
             const lowStockList = document.getElementById('low-stock-alert-list');
-            const LOW_STOCK_THRESHOLD = 5;
+            const LOW_STOCK_THRESHOLD = 3;
             const POS_DRAFT_STORAGE_KEY = 'pos_form_draft_v1';
             const hasOldInput = posForm ? posForm.dataset.hasOldInput === '1' : false;
             const isEditing = posForm ? posForm.dataset.editing === '1' : false;
