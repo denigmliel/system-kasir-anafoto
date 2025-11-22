@@ -78,6 +78,7 @@
                         <tr>
                             <th>Tanggal</th>
                             <th>Total</th>
+                            <th>Jumlah Transaksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,6 +86,7 @@
                             <tr>
                                 <td>{{ \Illuminate\Support\Carbon::parse($summary->date)->format('d M Y') }}</td>
                                 <td>Rp{{ number_format($summary->total, 0, ',', '.') }}</td>
+                                <td>{{ $summary->transaction_count }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -143,6 +145,7 @@
                 gradient.addColorStop(1, 'rgba(220, 38, 38, 0)');
 
                 const salesData = @json($monthlySalesTotals);
+                const transactionCounts = @json($monthlySalesTransactionCounts);
                 const maxValue = salesData.length ? Math.max(...salesData) : 0;
                 const suggestedMax = Math.max(100000, Math.ceil(maxValue / 100000) * 100000);
 
@@ -230,11 +233,17 @@
                                 callbacks: {
                                     label: (context) => {
                                         const value = context.parsed.y ?? 0;
-                                        return `Total: ${new Intl.NumberFormat('id-ID', {
+                                        const txCount = transactionCounts[context.dataIndex] ?? 0;
+
+                                        const totalLabel = `Total: ${new Intl.NumberFormat('id-ID', {
                                             style: 'currency',
                                             currency: 'IDR',
                                             maximumFractionDigits: 0,
                                         }).format(value)}`;
+
+                                        const countLabel = `Transaksi: ${new Intl.NumberFormat('id-ID').format(txCount)}`;
+
+                                        return [totalLabel, countLabel];
                                     },
                                 },
                             },

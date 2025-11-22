@@ -48,7 +48,8 @@ class KasirController extends Controller
 
         $monthlySales = Transaction::select(
                 DB::raw('DATE(transaction_date) as date'),
-                DB::raw('SUM(total_amount) as total')
+                DB::raw('SUM(total_amount) as total'),
+                DB::raw('COUNT(*) as transaction_count')
             )
             ->where('user_id', $user->id)
             ->whereBetween('transaction_date', [now()->startOfMonth(), now()->endOfMonth()])
@@ -62,6 +63,10 @@ class KasirController extends Controller
 
         $monthlySalesTotals = $monthlySales
             ->map(fn ($summary) => (int) $summary->total)
+            ->values();
+
+        $monthlySalesTransactionCounts = $monthlySales
+            ->map(fn ($summary) => (int) $summary->transaction_count)
             ->values();
 
         $todaySalesTotal = $todayTransactions->sum('total_amount');
@@ -80,6 +85,7 @@ class KasirController extends Controller
             'monthlySales' => $monthlySales,
             'monthlySalesLabels' => $monthlySalesLabels,
             'monthlySalesTotals' => $monthlySalesTotals,
+            'monthlySalesTransactionCounts' => $monthlySalesTransactionCounts,
         ]);
     }
 
