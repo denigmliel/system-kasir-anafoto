@@ -481,19 +481,62 @@
             gap: 10px;
         }
 
-        .smart-scan {
+        .smart-scan-layer {
+            position: fixed;
+            inset: 0;
             display: none;
-            margin-bottom: 12px;
-            border: 1px dashed #c7d2fe;
-            background: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 100%);
-            border-radius: 16px;
-            padding: 14px 16px;
-            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 1500;
+        }
+
+        .smart-scan-layer.is-visible {
+            display: flex;
+        }
+
+        .smart-scan-layer__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.35);
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .smart-scan-layer.is-visible .smart-scan-layer__backdrop {
+            opacity: 1;
+        }
+
+        .smart-scan {
+            position: relative;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: 14px;
+            width: min(460px, 100%);
+            max-width: 460px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 20px 70px rgba(15, 23, 42, 0.16);
+            border-radius: 20px;
+            padding: 16px 18px 18px;
+            z-index: 1;
+            animation: floatIn 0.22s ease;
+        }
+
+        @keyframes floatIn {
+            from {
+                transform: translateY(12px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .smart-scan.is-visible {
             display: grid;
-            grid-template-columns: minmax(0, 1fr);
         }
 
         .smart-scan__header {
@@ -501,17 +544,24 @@
             justify-content: space-between;
             gap: 12px;
             flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .smart-scan__title-group {
+            display: flex;
+            gap: 12px;
             align-items: center;
         }
 
         .smart-scan__title {
             margin: 0;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f172a;
         }
 
         .smart-scan__desc {
-            margin: 4px 0 0;
+            margin: 2px 0 0;
             color: #475467;
             font-size: 13px;
         }
@@ -526,21 +576,18 @@
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             gap: 12px;
-            margin-top: 10px;
-            justify-items: center;
-            align-items: center;
+            margin-top: 4px;
         }
 
         .smart-scan__video {
             position: relative;
             width: 100%;
-            min-height: 220px;
-            border-radius: 14px;
+            min-height: 260px;
+            border-radius: 16px;
             overflow: hidden;
-            background: #0f172a;
-            border: 1px solid #cbd5e1;
-            max-width: 720px;
-            margin: 0 auto;
+            background: radial-gradient(circle at 30% 30%, #eef2ff 0%, #e2e8f0 45%, #d7dde5 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(226, 232, 240, 0.5);
         }
 
         .smart-scan__video video {
@@ -553,62 +600,105 @@
             transform: scaleX(-1);
         }
 
+        .smart-scan__frame {
+            position: absolute;
+            inset: 14%;
+            border-radius: 18px;
+            box-shadow:
+                0 0 0 1px rgba(16, 185, 129, 0.45),
+                0 0 0 9px rgba(16, 185, 129, 0.08);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .smart-scan__frame-corner {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            border: 3px solid #22c55e;
+            filter: drop-shadow(0 6px 14px rgba(34, 197, 94, 0.25));
+        }
+
+        .smart-scan__frame-corner--tl { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+        .smart-scan__frame-corner--tr { top: -3px; right: -3px; border-left: 0; border-bottom: 0; }
+        .smart-scan__frame-corner--bl { bottom: -3px; left: -3px; border-right: 0; border-top: 0; }
+        .smart-scan__frame-corner--br { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+
+        .smart-scan__pulse {
+            position: absolute;
+            inset: 10%;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 18px;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.15; }
+            100% { opacity: 0.6; }
+        }
+
+        .smart-scan__status-block {
+            display: grid;
+            gap: 6px;
+        }
+
         .smart-scan__status {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: #e0f2fe;
-            color: #0b4f6c;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: #0f172a;
             font-weight: 600;
             font-size: 13px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         .smart-scan__status[data-variant="error"] {
             background: #fef2f2;
             color: #b42318;
             border: 1px solid #fecdd3;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .smart-scan__status[data-variant="success"] {
             background: #ecfdf3;
-            color: #027a48;
+            color: #166534;
             border: 1px solid #bbf7d0;
         }
 
         .smart-scan__hint {
             font-size: 12px;
-            color: #475467;
-            margin: 4px 0 0;
+            color: #526274;
+            margin: 0;
         }
 
         .smart-scan__badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 10px;
-            background: #1d4ed8;
-            color: #fff;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #e0f2fe;
+            color: #0b4f6c;
             border-radius: 999px;
             font-size: 12px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             font-weight: 700;
+            border: 1px solid #bae6fd;
+            box-shadow: 0 6px 16px rgba(14, 116, 144, 0.12);
         }
 
-        .smart-scan__pulse {
-            position: absolute;
-            inset: 0;
-            border: 2px solid rgba(59, 130, 246, 0.5);
-            border-radius: 14px;
-            pointer-events: none;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 0.15; }
-            100% { opacity: 0.7; }
+        .smart-scan__badge svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
 
         .smart-scan__status-icon {
@@ -625,9 +715,9 @@
             fill: currentColor;
         }
 
-        @media (min-width: 900px) {
-            .smart-scan.is-visible {
-                grid-template-columns: minmax(0, 1fr);
+        @media (max-width: 640px) {
+            .smart-scan {
+                width: 100%;
             }
         }
     </style>
@@ -730,36 +820,67 @@
                         </div>
                     </div>
 
-                    <div id="smart-scan-panel" class="smart-scan" aria-live="polite" hidden>
-                        <div class="smart-scan__header">
-                            <div>
-                                <div class="smart-scan__badge">Smart Scan</div>
-                                <p class="smart-scan__desc">Gunakan kamera HP/Laptop untuk membaca QR produk dan otomatis menambah ke keranjang.</p>
-                            </div>
-                            <div class="smart-scan__actions">
-                                <button type="button" class="btn btn-secondary btn-icon" id="smart-scan-close" title="Tutup pemindaian" aria-label="Tutup pemindaian">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                        <path d="M18.3 5.7a1 1 0 0 0-1.4-1.4L12 9.59 7.1 4.7A1 1 0 1 0 5.7 6.1L10.6 11 5.7 15.9a1 1 0 1 0 1.4 1.4L12 12.41l4.9 4.89a1 1 0 1 0 1.4-1.4L13.41 11z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="smart-scan__body">
-                            <div class="smart-scan__video">
-                                <video id="smart-scan-video" autoplay playsinline muted></video>
-                                <div class="smart-scan__pulse" aria-hidden="true"></div>
-                                <canvas id="smart-scan-canvas" hidden></canvas>
-                            </div>
-                            <div>
-                                <div id="smart-scan-status" class="smart-scan__status" data-variant="info">
-                                    <span class="smart-scan__status-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" focusable="false">
-                                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 15a1 1 0 1 1 1-1 1 1 0 0 1-1 1Zm1-4a1 1 0 0 1-2 0V7a1 1 0 0 1 2 0Z"/>
+                    <div id="smart-scan-layer" class="smart-scan-layer" hidden>
+                        <div class="smart-scan-layer__backdrop" id="smart-scan-backdrop" aria-hidden="true"></div>
+                        <div
+                            id="smart-scan-panel"
+                            class="smart-scan"
+                            aria-live="polite"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Smart Scanner"
+                            hidden
+                        >
+                            <div class="smart-scan__header">
+                                <div class="smart-scan__title-group">
+                                    <div class="smart-scan__badge">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M4 7a3 3 0 0 1 3-3h1a1 1 0 0 1 0 2H7a1 1 0 0 0-1 1v1a1 1 0 0 1-2 0Zm11-4h1a3 3 0 0 1 3 3v1a1 1 0 0 1-2 0V6a1 1 0 0 0-1-1h-1a1 1 0 0 1 0-2ZM6 16v1a1 1 0 0 0 1 1h1a1 1 0 0 1 0 2H7a3 3 0 0 1-3-3v-1a1 1 0 0 1 2 0Zm12-2a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3h-1a1 1 0 0 1 0-2h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1ZM9 9.5A1.5 1.5 0 1 1 10.5 11 1.5 1.5 0 0 1 9 9.5Zm3 2.5a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-2a2 2 0 1 0-2-2 2 2 0 0 0 2 2Zm-3 4h6a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2Zm8 0h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2Zm-10 0h2a1 1 0 0 1 0 2H7a1 1 0 0 1 0-2Z"/>
                                         </svg>
-                                    </span>
-                                    <span>Tekan ikon kamera untuk memulai pemindaian.</span>
+                                        <span>Smart Scanner</span>
+                                    </div>
+                                    <div>
+                                        <p class="smart-scan__title">Scan produk lebih cepat</p>
+                                        <p class="smart-scan__desc">Arahkan QR ke bingkai hijau, kamera dibuka mini di depan.</p>
+                                    </div>
                                 </div>
-                                <p class="smart-scan__hint" id="smart-scan-hint">Tips: gunakan kamera belakang di HP untuk fokus lebih cepat dan jaga jarak 10-20 cm dari label.</p>
+                                <div class="smart-scan__actions">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary btn-icon"
+                                        id="smart-scan-close"
+                                        title="Tutup pemindaian"
+                                        aria-label="Tutup pemindaian"
+                                    >
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                            <path d="M18.3 5.7a1 1 0 0 0-1.4-1.4L12 9.59 7.1 4.7A1 1 0 1 0 5.7 6.1L10.6 11 5.7 15.9a1 1 0 1 0 1.4 1.4L12 12.41l4.9 4.89a1 1 0 1 0 1.4-1.4L13.41 11z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="smart-scan__body">
+                                <div class="smart-scan__video">
+                                    <video id="smart-scan-video" autoplay playsinline muted></video>
+                                    <div class="smart-scan__frame" aria-hidden="true">
+                                        <span class="smart-scan__frame-corner smart-scan__frame-corner--tl"></span>
+                                        <span class="smart-scan__frame-corner smart-scan__frame-corner--tr"></span>
+                                        <span class="smart-scan__frame-corner smart-scan__frame-corner--bl"></span>
+                                        <span class="smart-scan__frame-corner smart-scan__frame-corner--br"></span>
+                                    </div>
+                                    <div class="smart-scan__pulse" aria-hidden="true"></div>
+                                    <canvas id="smart-scan-canvas" hidden></canvas>
+                                </div>
+                                <div class="smart-scan__status-block">
+                                    <div id="smart-scan-status" class="smart-scan__status" data-variant="info">
+                                        <span class="smart-scan__status-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false">
+                                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 15a1 1 0 1 1 1-1 1 1 0 0 1-1 1Zm1-4a1 1 0 0 1-2 0V7a1 1 0 0 1 2 0Z"/>
+                                            </svg>
+                                        </span>
+                                        <span>Tekan ikon kamera untuk memulai pemindaian.</span>
+                                    </div>
+                                    <p class="smart-scan__hint" id="smart-scan-hint">Tips: gunakan kamera belakang di HP untuk fokus lebih cepat dan jaga jarak 10-20 cm dari label.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1150,6 +1271,8 @@
             const lowStockAlert = document.getElementById('low-stock-alert');
             const lowStockList = document.getElementById('low-stock-alert-list');
             const smartScanToggle = document.getElementById('smart-scan-toggle');
+            const smartScanLayer = document.getElementById('smart-scan-layer');
+            const smartScanBackdrop = document.getElementById('smart-scan-backdrop');
             const smartScanPanel = document.getElementById('smart-scan-panel');
             const smartScanVideo = document.getElementById('smart-scan-video');
             const smartScanStatus = document.getElementById('smart-scan-status');
@@ -1349,19 +1472,25 @@
             }
 
             function showSmartScanPanel() {
-                if (!smartScanPanel) {
-                    return;
+                if (smartScanLayer) {
+                    smartScanLayer.hidden = false;
+                    smartScanLayer.classList.add('is-visible');
                 }
-                smartScanPanel.hidden = false;
-                smartScanPanel.classList.add('is-visible');
+                if (smartScanPanel) {
+                    smartScanPanel.hidden = false;
+                    smartScanPanel.classList.add('is-visible');
+                }
             }
 
             function hideSmartScanPanel() {
-                if (!smartScanPanel) {
-                    return;
+                if (smartScanPanel) {
+                    smartScanPanel.classList.remove('is-visible');
+                    smartScanPanel.hidden = true;
                 }
-                smartScanPanel.classList.remove('is-visible');
-                smartScanPanel.hidden = true;
+                if (smartScanLayer) {
+                    smartScanLayer.classList.remove('is-visible');
+                    smartScanLayer.hidden = true;
+                }
             }
 
             function stopSmartScan() {
@@ -1638,6 +1767,10 @@
                     return;
                 }
                 addProductFromScan(product);
+                // Tutup popup setelah scan berhasil supaya layar POS terlihat.
+                updateSmartScanStatus(`Ditambahkan: ${product.label}. Menutup pemindaian...`, 'success');
+                stopSmartScan();
+                hideSmartScanPanel();
                 persistFormState();
             }
 
@@ -2827,6 +2960,14 @@
 
             if (smartScanClose) {
                 smartScanClose.addEventListener('click', () => {
+                    stopSmartScan();
+                    hideSmartScanPanel();
+                    updateSmartScanStatus('Pemindaian ditutup.', 'info');
+                });
+            }
+
+            if (smartScanBackdrop) {
+                smartScanBackdrop.addEventListener('click', () => {
                     stopSmartScan();
                     hideSmartScanPanel();
                     updateSmartScanStatus('Pemindaian ditutup.', 'info');

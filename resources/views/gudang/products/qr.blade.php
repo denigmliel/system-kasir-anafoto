@@ -10,6 +10,7 @@
             gap: 14px;
             align-items: flex-start;
             margin-bottom: 18px;
+            flex-wrap: wrap;
         }
 
         .qr-page__header h1 {
@@ -29,18 +30,20 @@
 
         .qr-card__grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            align-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 26px;
+            align-items: stretch;
+            padding: 10px;
         }
 
         .qr-label {
-            background: linear-gradient(145deg, #f8fafc 0%, #e0f2fe 100%);
-            border: 1px solid #d0d5dd;
-            border-radius: 16px;
-            padding: 16px 18px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e5f0ff 100%);
+            border: 1px solid #d5deeb;
+            border-radius: 18px;
+            padding: 18px 20px;
             display: grid;
-            gap: 12px;
+            gap: 14px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
 
         .qr-label__title {
@@ -48,7 +51,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-        }
+            }
 
         .qr-label__title strong {
             letter-spacing: 0.4px;
@@ -75,15 +78,15 @@
 
         .qr-label__meta {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 10px 14px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px 14px;
         }
 
         .qr-label__meta-item {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 12px 14px;
         }
 
         .qr-label__meta-item span {
@@ -100,16 +103,23 @@
 
         .qr-figure {
             display: grid;
-            gap: 10px;
+            gap: 12px;
             justify-items: center;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
 
         .qr-figure__box {
             background: #ffffff;
             border: 1px dashed #cbd5e1;
             border-radius: 16px;
-            padding: 14px;
-            box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.2);
+            padding: 16px;
+            box-shadow:
+                inset 0 1px 0 rgba(148, 163, 184, 0.2),
+                0 12px 28px rgba(15, 23, 42, 0.05);
             width: 100%;
             max-width: 320px;
             display: flex;
@@ -123,8 +133,33 @@
             max-width: 280px;
         }
 
+        .qr-figure__caption {
+            font-size: 12px;
+            color: #475467;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Tombol hijau untuk simpan JPEG */
+        .chip-button--success {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+            color: #ffffff;
+            border: 1px solid #16a34a;
+            box-shadow: 0 10px 24px rgba(34, 197, 94, 0.25);
+        }
+
+        .chip-button--success:hover {
+            filter: brightness(1.05);
+            box-shadow: 0 12px 28px rgba(34, 197, 94, 0.28);
+        }
+
+        .chip-button--success:active {
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.24);
+        }
+
         .qr-payload {
             width: 100%;
+            max-width: 360px;
             background: #0f172a;
             color: #e2e8f0;
             border-radius: 12px;
@@ -133,19 +168,22 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            margin: 0 auto;
         }
 
         .qr-guides {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 12px;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         .qr-guide {
             border: 1px dashed #d0d5dd;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 12px 14px;
             background: #f8fafc;
         }
 
@@ -195,12 +233,13 @@
         </div>
         <div class="qr-actions">
             <button type="button" id="btn-print-label" class="chip-button chip-button--blue">Cetak Label</button>
+            <button type="button" id="btn-download-qr" class="chip-button chip-button--success">Simpan JPEG</button>
             <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--gray">Kembali ke Detail</a>
             <a href="{{ route('gudang.products.index') }}" class="chip-button chip-button--yellow">Ke Daftar Produk</a>
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="padding: 26px;">
         <div class="qr-card__grid">
             <div class="qr-label">
                 <div class="qr-label__title">
@@ -228,10 +267,11 @@
                 </div>
             </div>
 
-            <div class="qr-figure">
+            <div class="qr-figure" data-product-name="{{ $product->name }}" data-label-code="{{ $labelCode }}">
                 <div class="qr-figure__box" aria-label="QR Code {{ $product->name }}">
                     {!! $qrSvg !!}
                 </div>
+                <p class="qr-figure__caption">Nama akan ikut di JPEG: {{ $product->name }}</p>
                 <div class="qr-payload" title="{{ $qrPayload }}">
                     {{ $qrPayload }}
                 </div>
@@ -254,9 +294,78 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const printButton = document.getElementById('btn-print-label');
+            const downloadButton = document.getElementById('btn-download-qr');
+            const figure = document.querySelector('.qr-figure');
+            const qrBox = document.querySelector('.qr-figure__box');
+
             if (printButton) {
                 printButton.addEventListener('click', function () {
                     window.print();
+                });
+            }
+
+            if (downloadButton && figure && qrBox) {
+                downloadButton.addEventListener('click', function () {
+                    const svg = qrBox.querySelector('svg');
+                    if (!svg) {
+                        alert('QR belum siap diekspor.');
+                        return;
+                    }
+
+                    downloadButton.disabled = true;
+                    downloadButton.textContent = 'Menyiapkan...';
+
+                    const productName = figure.dataset.productName || 'Produk';
+                    const labelCode = figure.dataset.labelCode || 'QR';
+                    const serializer = new XMLSerializer();
+                    const svgString = serializer.serializeToString(svg);
+                    const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+                    const img = new Image();
+                    img.onload = () => {
+                        const qrSize = 520;
+                        const padding = 28;
+                        const captionHeight = 42;
+                        const width = qrSize + padding * 2;
+                        const height = qrSize + padding * 2 + captionHeight;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) {
+                            alert('Canvas tidak tersedia di browser ini.');
+                            downloadButton.disabled = false;
+                            downloadButton.textContent = 'Simpan JPEG';
+                            return;
+                        }
+
+                        // latar putih agar JPEG siap dicetak dan tidak transparan
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, width, height);
+
+                        const qrX = (width - qrSize) / 2;
+                        ctx.drawImage(img, qrX, padding, qrSize, qrSize);
+
+                        const caption = productName.length > 60 ? productName.slice(0, 57) + '...' : productName;
+                        ctx.fillStyle = '#111827';
+                        ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(caption, width / 2, qrSize + padding + captionHeight / 2);
+
+                        const link = document.createElement('a');
+                        link.download = `${labelCode || 'QR'}.jpg`;
+                        link.href = canvas.toDataURL('image/jpeg', 0.92);
+                        link.click();
+
+                        downloadButton.disabled = false;
+                        downloadButton.textContent = 'Simpan JPEG';
+                    };
+                    img.onerror = () => {
+                        alert('Gagal memuat QR untuk diekspor.');
+                        downloadButton.disabled = false;
+                        downloadButton.textContent = 'Simpan JPEG';
+                    };
+                    img.src = svgDataUrl;
                 });
             }
         });
