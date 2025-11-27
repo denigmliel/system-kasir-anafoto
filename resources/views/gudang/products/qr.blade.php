@@ -30,20 +30,32 @@
 
         .qr-card__grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 26px;
-            align-items: stretch;
-            padding: 10px;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            align-items: start;
+            padding: 6px;
+            justify-content: center;
+            justify-items: center;
+            max-width: 840px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 960px) {
+            .qr-card__grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .qr-label {
             background: linear-gradient(180deg, #f8fafc 0%, #e5f0ff 100%);
             border: 1px solid #d5deeb;
-            border-radius: 18px;
-            padding: 18px 20px;
+            border-radius: 14px;
+            padding: 12px 14px;
             display: grid;
-            gap: 14px;
+            gap: 8px;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            width: 100%;
+            max-width: 780px;
         }
 
         .qr-label__title {
@@ -70,7 +82,7 @@
         }
 
         .qr-label__name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             margin: 0;
             color: #0f172a;
@@ -78,15 +90,21 @@
 
         .qr-label__meta {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px 14px;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 10px 12px;
+        }
+
+        @media (max-width: 820px) {
+            .qr-label__meta {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
         }
 
         .qr-label__meta-item {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 12px 14px;
+            padding: 8px 10px;
         }
 
         .qr-label__meta-item span {
@@ -103,25 +121,28 @@
 
         .qr-figure {
             display: grid;
-            gap: 12px;
+            gap: 8px;
             justify-items: center;
-            padding: 18px;
+            padding: 12px;
             border: 1px solid #e2e8f0;
-            border-radius: 18px;
+            border-radius: 14px;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            max-width: 380px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .qr-figure__box {
             background: #ffffff;
             border: 1px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 12px;
+            padding: 12px;
             box-shadow:
                 inset 0 1px 0 rgba(148, 163, 184, 0.2),
-                0 12px 28px rgba(15, 23, 42, 0.05);
+                0 8px 20px rgba(15, 23, 42, 0.05);
             width: 100%;
-            max-width: 320px;
+            max-width: 250px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -130,11 +151,11 @@
         .qr-figure__box svg {
             width: 100%;
             height: auto;
-            max-width: 280px;
+            max-width: 210px;
         }
 
         .qr-figure__caption {
-            font-size: 12px;
+            font-size: 11px;
             color: #475467;
             margin: 0;
             text-align: center;
@@ -159,38 +180,18 @@
 
         .qr-payload {
             width: 100%;
-            max-width: 360px;
+            max-width: 280px;
             background: #0f172a;
             color: #e2e8f0;
-            border-radius: 12px;
-            padding: 10px 12px;
-            font-size: 12px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 11px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
             margin: 0 auto;
-        }
-
-        .qr-guides {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 12px;
-            margin-top: 4px;
-        }
-
-        .qr-guide {
-            border: 1px dashed #d0d5dd;
-            border-radius: 12px;
-            padding: 12px 14px;
-            background: #f8fafc;
-        }
-
-        .qr-guide strong {
-            display: block;
-            margin-bottom: 4px;
-            color: #0f172a;
         }
 
         @media print {
@@ -274,16 +275,6 @@
                 <p class="qr-figure__caption">Nama akan ikut di JPEG: {{ $product->name }}</p>
                 <div class="qr-payload" title="{{ $qrPayload }}">
                     {{ $qrPayload }}
-                </div>
-                <div class="qr-guides">
-                    <div class="qr-guide">
-                        <strong>Cetak rapi</strong>
-                        Gunakan kertas minimal 5x5 cm, non-blur, dan hindari permukaan mengkilap agar scanner cepat membaca.
-                    </div>
-                    <div class="qr-guide">
-                        <strong>Isi QR</strong>
-                        Menyimpan ID, kode, nama, unit, harga, dan kategori produk sehingga mudah disinkronkan ke kasir.
-                    </div>
                 </div>
             </div>
         </div>
