@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockMovement extends Model
 {
-    public $timestamps = false;
+    public $timestamps = true;
+    public const UPDATED_AT = null;
 
     protected $fillable = [
         'product_id', 'user_id', 'type', 'quantity',
-        'reference_type', 'reference_id', 'notes'
+        'reference_type', 'reference_id', 'notes', 'created_at',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
     ];
 
     public function product()

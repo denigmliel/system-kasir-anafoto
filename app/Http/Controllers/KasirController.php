@@ -366,6 +366,7 @@ class KasirController extends Controller
                     'user_id' => $user->id,
                     'type' => 'out',
                     'quantity' => $stockDeduction > 0 ? $stockDeduction : $detailData['quantity'],
+                    'created_at' => $transaction->transaction_date,
                     'reference_type' => 'transaction',
                     'reference_id' => $transaction->id,
                     'notes' => 'Penjualan #' . $transaction->code,

@@ -255,6 +255,7 @@ class GudangController extends Controller
                     'user_id' => Auth::id(),
                     'type' => 'adjustment',
                     'quantity' => $product->stock,
+                    'created_at' => now(),
                     'reference_type' => 'initial',
                     'reference_id' => $product->id,
                     'notes' => 'Stok awal produk',
@@ -390,6 +391,7 @@ class GudangController extends Controller
                     'user_id' => Auth::id(),
                     'type' => 'adjustment',
                     'quantity' => abs($difference),
+                    'created_at' => now(),
                     'reference_type' => 'edit_product',
                     'reference_id' => $product->id,
                     'notes' => $difference > 0
@@ -403,6 +405,7 @@ class GudangController extends Controller
                 'user_id' => Auth::id(),
                 'type' => 'adjustment',
                 'quantity' => $product->stock,
+                'created_at' => now(),
                 'reference_type' => 'edit_product',
                 'reference_id' => $product->id,
                 'notes' => 'Mengaktifkan stok terhitung saat edit produk',
@@ -547,6 +550,7 @@ class GudangController extends Controller
                 'user_id' => Auth::id(),
                 'type' => 'adjustment',
                 'quantity' => $data['quantity'],
+                'created_at' => now(),
                 'reference_type' => 'manual_adjustment',
                 'reference_id' => $product->id,
                 'notes' => $data['notes']
