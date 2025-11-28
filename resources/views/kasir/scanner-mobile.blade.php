@@ -29,19 +29,28 @@
 
     <div id="reader"></div>
     <div id="status-msg" class="status">Siap scan...</div>
+    <div id="debug-msg" class="muted" style="word-break: break-all;"></div>
     <div class="muted">Pastikan kamera diizinkan.</div>
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const statusMsg = document.getElementById('status-msg');
+        const debugMsg = document.getElementById('debug-msg');
 
         function updateStatus(text, color = '#f8fafc') {
             statusMsg.textContent = text;
             statusMsg.style.color = color;
         }
 
+        const showDebug = (text) => {
+            if (debugMsg) {
+                debugMsg.textContent = text || '';
+            }
+        };
+
         async function sendCode(decodedText) {
             updateStatus('Mengirim: ' + decodedText + ' ...', '#facc15');
+            showDebug('');
             try {
                 const response = await fetch("{{ route('kasir.scan.store') }}", {
                     method: 'POST',
@@ -54,33 +63,32 @@
                     body: JSON.stringify({ code: decodedText }),
                 });
 
-                if (!response.ok) {
-                    let detail = '';
-                    try {
-                        detail = await response.text();
-                    } catch (e) {
-                        detail = '';
-                    }
+                let rawText = '';
+                try { rawText = await response.clone().text(); } catch (e) { rawText = ''; }
 
-                    if (response.status === 404) throw new Error('Route /scan-item tidak ditemukan (404). Pastikan kode terbaru sudah di-deploy. Detail: ' + detail.slice(0, 200));
+                if (!response.ok) {
+                    const detail = rawText.slice(0, 400);
+                    if (response.status === 404) throw new Error('Route /scan-item tidak ditemukan (404). Pastikan kode terbaru sudah di-deploy. Detail: ' + detail);
                     if (response.status === 401) throw new Error('Belum login (401). Silakan login ulang di domain yang sama.');
                     if (response.status === 419) throw new Error('Sesi/CSRF kedaluwarsa (419). Refresh halaman dan login ulang.');
                     if (response.status === 500) {
                         let parsed;
-                        try { parsed = JSON.parse(detail); } catch (e) { parsed = {}; }
-                        throw new Error(parsed.message || ('Error server (500). ' + detail.slice(0, 200)));
+                        try { parsed = JSON.parse(rawText); } catch (e) { parsed = {}; }
+                        throw new Error(parsed.message || ('Error server (500). ' + detail));
                     }
-                    throw new Error('Gagal: HTTP ' + response.status + '. ' + detail.slice(0, 200));
+                    throw new Error('Gagal: HTTP ' + response.status + '. ' + detail);
                 }
 
                 let data = {};
                 try {
                     data = await response.json();
                 } catch (e) {
-                    throw new Error('Respons bukan JSON. Periksa log server.');
+                    showDebug('Raw response: ' + rawText.slice(0, 400));
+                    throw new Error('Respons bukan JSON. Periksa log server / Network tab.');
                 }
 
                 if (!data || data.status !== 'success') {
+                    showDebug('Raw response: ' + rawText.slice(0, 400));
                     throw new Error((data && data.message) || 'Gagal mengirim scan (respons tidak success).');
                 }
 
@@ -93,7 +101,8 @@
             } catch (error) {
                 console.error(error);
                 updateStatus('Gagal: ' + error.message, '#f87171');
-                alert(error.message);
+                showDebug('Debug: ' + (error && error.message ? error.message : 'Tanpa pesan'));
+                alert(error && error.message ? error.message : 'Terjadi kesalahan saat mengirim. Lihat debug di bawah.');
                 setTimeout(() => updateStatus('Siap scan...'), 1500);
             }
         }
