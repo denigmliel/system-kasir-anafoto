@@ -56,12 +56,15 @@
         async function sendCode(decodedText) {
             updateStatus('Mengirim: ' + decodedText + ' ...', '#facc15');
             showDebug('');
+            let lastStatus = null;
+            let lastRaw = '';
             try {
                 const response = await fetch("{{ $scanUrl }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrfToken,
                     },
                     credentials: 'same-origin',
@@ -70,18 +73,21 @@
 
                 let rawText = '';
                 try { rawText = await response.clone().text(); } catch (e) { rawText = ''; }
+                lastRaw = rawText;
+                let statusCode = response.status;
+                lastStatus = statusCode;
 
                 if (!response.ok) {
                     const detail = rawText.slice(0, 400);
-                    if (response.status === 404) throw new Error('404: scan-item tidak ditemukan. Deploy kode terbaru & route:clear. Detail: ' + detail);
-                    if (response.status === 401) throw new Error('401: Belum login. Login ulang di domain yang sama.');
-                    if (response.status === 419) throw new Error('419: Sesi/CSRF kedaluwarsa. Refresh halaman & login ulang.');
-                    if (response.status === 500) {
+                    if (statusCode === 404) throw new Error('404: scan-item tidak ditemukan. Deploy kode terbaru & route:clear. Detail: ' + detail);
+                    if (statusCode === 401) throw new Error('401: Belum login. Login ulang di domain yang sama.');
+                    if (statusCode === 419) throw new Error('419: Sesi/CSRF kedaluwarsa. Refresh halaman & login ulang.');
+                    if (statusCode === 500) {
                         let parsed;
                         try { parsed = JSON.parse(rawText); } catch (e) { parsed = {}; }
                         throw new Error(parsed.message || ('500: Error server. ' + detail));
                     }
-                    throw new Error('HTTP ' + response.status + '. ' + detail);
+                    throw new Error('HTTP ' + statusCode + '. ' + detail);
                 }
 
                 let data = {};
@@ -105,10 +111,11 @@
                 }, 1200);
             } catch (error) {
                 console.error(error);
+                const rawSnippet = (lastRaw || '').slice(0, 400);
                 const msg = error && error.message ? error.message : 'Terjadi kesalahan saat mengirim. Lihat debug di bawah.';
                 updateStatus('Gagal: ' + msg, '#f87171');
-                showDebug('Debug: ' + msg);
-                alert(msg);
+                showDebug('Debug: ' + msg + (lastStatus ? ' | HTTP ' + lastStatus : '') + (rawSnippet ? ' | Raw: ' + rawSnippet : ''));
+                alert(msg + (lastStatus ? '\nStatus: ' + lastStatus : '') + (rawSnippet ? '\nRaw: ' + rawSnippet : ''));
                 setTimeout(() => updateStatus('Siap scan...'), 1500);
             }
         }
