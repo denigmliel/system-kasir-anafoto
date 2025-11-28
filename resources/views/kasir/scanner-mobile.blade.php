@@ -168,9 +168,14 @@
                 updateStatus(successText, '#4ade80');
                 showDebug(productName ? `Ditambahkan: ${productName}` : ''); // info item berhasil masuk
 
-                if (window.html5QrcodeScanner && typeof html5QrcodeScanner.pause === 'function') {
-                    html5QrcodeScanner.pause();
-                    showSuccessModal({ code: parsedCode, name: productName, price: productPrice });
+                showSuccessModal({ code: parsedCode, name: productName, price: productPrice });
+
+                try {
+                    if (window.html5QrcodeScanner && typeof html5QrcodeScanner.pause === 'function') {
+                        html5QrcodeScanner.pause();
+                    }
+                } catch (e) {
+                    console.warn('Gagal pause scanner:', e);
                 }
             } catch (error) {
                 console.error(error);
@@ -201,7 +206,11 @@
                 hideSuccessModal();
                 if (window.html5QrcodeScanner && typeof html5QrcodeScanner.resume === 'function') {
                     updateStatus('Siap scan...');
-                    html5QrcodeScanner.resume();
+                    try {
+                        html5QrcodeScanner.resume();
+                    } catch (e) {
+                        console.warn('Gagal resume scanner:', e);
+                    }
                 }
             });
         }
