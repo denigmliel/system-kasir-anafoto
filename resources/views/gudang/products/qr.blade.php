@@ -315,7 +315,7 @@
                     img.onload = () => {
                         const qrSize = 520;
                         const padding = 28;
-                        const captionHeight = 42;
+                        const captionHeight = 130; // lebih tinggi agar teks jauh lebih besar
                         const width = qrSize + padding * 2;
                         const height = qrSize + padding * 2 + captionHeight;
                         const canvas = document.createElement('canvas');
@@ -338,7 +338,7 @@
 
                         const caption = productName.length > 60 ? productName.slice(0, 57) + '...' : productName;
                         ctx.fillStyle = '#111827';
-                        ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+                        ctx.font = '900 40px "Segoe UI", Arial, sans-serif';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(caption, width / 2, qrSize + padding + captionHeight / 2);

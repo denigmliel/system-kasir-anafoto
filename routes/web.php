@@ -22,6 +22,7 @@ Route::middleware('auth')->prefix('kasir')->name('kasir.')->group(function () {
     Route::post('/transaction', [KasirController::class, 'createTransaction'])->name('transaction.create');
     Route::get('/transaction/{id}/print', [KasirController::class, 'printReceipt'])->name('transaction.print');
     Route::get('/transaction/history', [KasirController::class, 'transactionHistory'])->name('transaction.history');
+    Route::post('/scan-preview', [PosScannerController::class, 'preview'])->name('scan.preview');
     Route::get('/mobile-scanner', [PosScannerController::class, 'index'])->name('mobile.scanner');
     Route::post('/scan-item', [PosScannerController::class, 'store'])->name('scan.store');
     Route::get('/check-scan', [PosScannerController::class, 'check'])->name('scan.check');

@@ -3040,35 +3040,50 @@
             const remoteScanEndpoint = "{{ route('kasir.scan.check') }}";
             let remoteScanInterval = null;
 
-            const selectProductByCode = (code) => {
+            const selectProductByCode = (code, unitId = null, quantityFromScan = 1) => {
                 const normalized = (code || '').trim().toLowerCase();
                 if (!normalized || !itemsBody) {
                     return false;
                 }
 
+                const normalizedUnitId = unitId ? String(unitId) : '';
+                const qtyToAdd = Math.max(1, Number(quantityFromScan) || 1);
+
                 const findExistingRow = (value) => {
                     return Array.from(itemsBody.querySelectorAll('.item-row')).find((row) => {
                         const select = row.querySelector('.product-select');
-                        return select && select.value === value;
+                        const unitSelect = row.querySelector('.unit-select');
+                        if (!select) {
+                            return false;
+                        }
+                        if (select.value !== value) {
+                            return false;
+                        }
+                        if (normalizedUnitId && unitSelect && unitSelect.value && unitSelect.value !== normalizedUnitId) {
+                            return false;
+                        }
+                        return true;
                     });
                 };
 
-                const ensureRow = () => {
+                const findEmptyRow = () => {
                     const emptyRow = Array.from(itemsBody.querySelectorAll('.item-row')).find((row) => {
                         const select = row.querySelector('.product-select');
                         return select && !select.value;
                     });
 
-                    return emptyRow || addRow();
+                    return emptyRow;
                 };
 
-                const row = ensureRow();
-                const productSelect = row ? row.querySelector('.product-select') : null;
-                if (!productSelect) {
-                    return false;
-                }
+                let sampleSelect = itemsBody.querySelector('.product-select');
 
-                const match = Array.from(productSelect.options).find((option) => {
+                if (!sampleSelect) {
+                    const row = addRow();
+                    sampleSelect = row ? row.querySelector('.product-select') : null;
+                }
+                if (!sampleSelect) return false;
+
+                const match = Array.from(sampleSelect.options).find((option) => {
                     const optionCode = (option.dataset.productCode || '').toLowerCase();
                     return optionCode === normalized;
                 });
@@ -3082,7 +3097,7 @@
                     const qtyInput = existingRow.querySelector('.quantity-input');
                     const current = qtyInput ? Number(qtyInput.value || 0) : 0;
                     if (qtyInput) {
-                        qtyInput.value = String(Math.max(current, 0) + 1);
+                        qtyInput.value = String(Math.max(current, 0) + qtyToAdd);
                         qtyInput.dispatchEvent(new Event('input', { bubbles: true }));
                     }
                     updateRow(existingRow);
@@ -3090,14 +3105,36 @@
                     return true;
                 }
 
+                const row = findEmptyRow() || addRow();
+                const productSelect = row ? row.querySelector('.product-select') : null;
+                if (!productSelect) {
+                    return false;
+                }
+
                 if (productSelect.value !== match.value) {
                     productSelect.value = match.value;
                     productSelect.dispatchEvent(new Event('change', { bubbles: true }));
                 }
 
+                const unitSelect = row.querySelector('.unit-select');
+                if (unitSelect && normalizedUnitId) {
+                    const applyUnitSelection = () => {
+                        const unitOption = Array.from(unitSelect.options).find((opt) => String(opt.value) === normalizedUnitId);
+                        if (unitOption) {
+                            unitSelect.value = normalizedUnitId;
+                            unitSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                            return true;
+                        }
+                        return false;
+                    };
+                    if (!applyUnitSelection()) {
+                        window.setTimeout(applyUnitSelection, 0);
+                    }
+                }
+
                 const qtyInput = row.querySelector('.quantity-input');
-                if (qtyInput && (!qtyInput.value || Number(qtyInput.value) <= 0)) {
-                    qtyInput.value = '1';
+                if (qtyInput) {
+                    qtyInput.value = String(qtyToAdd);
                     qtyInput.dispatchEvent(new Event('input', { bubbles: true }));
                 }
 
@@ -3119,7 +3156,7 @@
                         const data = await response.json();
 
                         if (data && data.found && data.code) {
-                            const handled = selectProductByCode(data.code);
+                            const handled = selectProductByCode(data.code, data.product_unit_id || null, data.quantity || 1);
                             if (!handled) {
                                 console.warn('Kode scan tidak dikenali:', data.code);
                             }
