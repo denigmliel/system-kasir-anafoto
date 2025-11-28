@@ -28,10 +28,20 @@ class PosScannerController extends Controller
         ]);
 
         $userId = Auth::id();
+        $code = trim($request->input('code'));
+
+        $product = Product::where('code', $code)->first();
+
+        if (! $product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Produk dengan kode tersebut tidak ditemukan di POS.',
+            ], 422);
+        }
 
         DB::table('pos_temp_scans')->insert([
             'user_id' => $userId,
-            'product_code' => $request->input('code'),
+            'product_code' => $code,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -39,6 +49,11 @@ class PosScannerController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Berhasil dikirim ke POS',
+            'product' => [
+                'id' => $product->id,
+                'code' => $product->code,
+                'name' => $product->name,
+            ],
         ]);
     }
 
