@@ -47,14 +47,26 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                     },
                     body: JSON.stringify({ code: decodedText }),
                 });
 
-                const data = await response.json();
-                if (!response.ok || data.status !== 'success') {
-                    throw new Error(data.message || 'Gagal mengirim scan.');
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error('Route /scan-item tidak ditemukan (404). Pastikan web.php sudah terdeploy.');
+                    if (response.status === 401) throw new Error('Belum login (401). Silakan login ulang.');
+                    if (response.status === 419) throw new Error('Sesi/CSRF kedaluwarsa (419). Refresh halaman dan login ulang.');
+                    if (response.status === 500) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.message || 'Error server (500).');
+                    }
+                    throw new Error('Gagal: HTTP ' + response.status);
+                }
+
+                const data = await response.json().catch(() => ({}));
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Gagal mengirim scan (respons tidak success).');
                 }
 
                 updateStatus('Berhasil: ' + decodedText, '#4ade80');
@@ -65,7 +77,8 @@
                 }, 1200);
             } catch (error) {
                 console.error(error);
-                updateStatus('Gagal mengirim, coba lagi.', '#f87171');
+                updateStatus('Gagal: ' + error.message, '#f87171');
+                alert(error.message);
                 setTimeout(() => updateStatus('Siap scan...'), 1500);
             }
         }
