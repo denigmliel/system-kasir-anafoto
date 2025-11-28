@@ -50,23 +50,38 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ code: decodedText }),
                 });
 
                 if (!response.ok) {
-                    if (response.status === 404) throw new Error('Route /scan-item tidak ditemukan (404). Pastikan web.php sudah terdeploy.');
-                    if (response.status === 401) throw new Error('Belum login (401). Silakan login ulang.');
+                    let detail = '';
+                    try {
+                        detail = await response.text();
+                    } catch (e) {
+                        detail = '';
+                    }
+
+                    if (response.status === 404) throw new Error('Route /scan-item tidak ditemukan (404). Pastikan kode terbaru sudah di-deploy. Detail: ' + detail.slice(0, 200));
+                    if (response.status === 401) throw new Error('Belum login (401). Silakan login ulang di domain yang sama.');
                     if (response.status === 419) throw new Error('Sesi/CSRF kedaluwarsa (419). Refresh halaman dan login ulang.');
                     if (response.status === 500) {
-                        const errData = await response.json().catch(() => ({}));
-                        throw new Error(errData.message || 'Error server (500).');
+                        let parsed;
+                        try { parsed = JSON.parse(detail); } catch (e) { parsed = {}; }
+                        throw new Error(parsed.message || ('Error server (500). ' + detail.slice(0, 200)));
                     }
-                    throw new Error('Gagal: HTTP ' + response.status);
+                    throw new Error('Gagal: HTTP ' + response.status + '. ' + detail.slice(0, 200));
                 }
 
-                const data = await response.json().catch(() => ({}));
-                if (data.status !== 'success') {
-                    throw new Error(data.message || 'Gagal mengirim scan (respons tidak success).');
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    throw new Error('Respons bukan JSON. Periksa log server.');
+                }
+
+                if (!data || data.status !== 'success') {
+                    throw new Error((data && data.message) || 'Gagal mengirim scan (respons tidak success).');
                 }
 
                 updateStatus('Berhasil: ' + decodedText, '#4ade80');
