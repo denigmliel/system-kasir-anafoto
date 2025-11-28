@@ -46,6 +46,12 @@ class PosScannerController extends Controller
             'updated_at' => now(),
         ]);
 
+        $price = $product->price;
+        $defaultUnit = $product->units()->where('is_default', true)->first();
+        if ($defaultUnit) {
+            $price = $defaultUnit->price;
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => 'Berhasil dikirim ke POS',
@@ -53,6 +59,7 @@ class PosScannerController extends Controller
                 'id' => $product->id,
                 'code' => $product->code,
                 'name' => $product->name,
+                'price' => $price,
             ],
         ]);
     }

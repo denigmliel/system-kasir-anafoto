@@ -32,6 +32,18 @@
     <div id="debug-msg" class="muted" style="word-break: break-all;"></div>
     <div class="muted">Pastikan kamera diizinkan.</div>
 
+    <div id="success-modal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 9999; align-items: center; justify-content: center; padding: 18px;">
+        <div style="background: #0b1224; color: #f8fafc; border: 1px solid #1f2937; border-radius: 16px; padding: 18px 18px 14px; width: min(360px, 100%); box-shadow: 0 24px 50px rgba(0,0,0,0.35); text-align: left;">
+            <div style="font-weight: 800; font-size: 16px; margin-bottom: 8px;">Scan berhasil</div>
+            <div id="modal-code" style="font-weight: 700; color: #34d399; margin-bottom: 6px;"></div>
+            <div id="modal-name" style="margin-bottom: 6px;"></div>
+            <div id="modal-price" style="color: #facc15; font-weight: 700;"></div>
+            <div style="margin-top: 14px; text-align: right;">
+                <button id="modal-close" style="background: #2563eb; color: #fff; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer;">Scan berikutnya</button>
+            </div>
+        </div>
+    </div>
+
     @php
         // Gunakan path relatif agar tidak terpengaruh APP_URL di hosting.
         $scanUrl = route('kasir.scan.store', [], false);
@@ -41,6 +53,11 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const statusMsg = document.getElementById('status-msg');
         const debugMsg = document.getElementById('debug-msg');
+        const successModal = document.getElementById('success-modal');
+        const modalCode = document.getElementById('modal-code');
+        const modalName = document.getElementById('modal-name');
+        const modalPrice = document.getElementById('modal-price');
+        const modalClose = document.getElementById('modal-close');
 
         function updateStatus(text, color = '#f8fafc') {
             statusMsg.textContent = text;
@@ -51,6 +68,29 @@
             if (debugMsg) {
                 debugMsg.textContent = text || '';
             }
+        };
+
+        const formatCurrency = (value) => {
+            const number = Number(value || 0);
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(number);
+        };
+
+        const showSuccessModal = ({ code, name, price }) => {
+            if (!successModal) return;
+            modalCode.textContent = code ? `Kode: ${code}` : '';
+            modalName.textContent = name ? `Nama: ${name}` : '';
+            modalPrice.textContent = typeof price !== 'undefined' ? `Harga: ${formatCurrency(price)}` : '';
+            successModal.style.display = 'flex';
+        };
+
+        const hideSuccessModal = () => {
+            if (!successModal) return;
+            successModal.style.display = 'none';
         };
 
         async function sendCode(decodedText) {
@@ -120,6 +160,7 @@
                 }
 
                 const productName = data.product && data.product.name ? data.product.name : '';
+                const productPrice = data.product && typeof data.product.price !== 'undefined' ? data.product.price : null;
                 const successText = productName
                     ? `Berhasil: ${parsedCode} · ${productName}`
                     : `Berhasil: ${parsedCode}`;
@@ -129,10 +170,7 @@
 
                 if (window.html5QrcodeScanner && typeof html5QrcodeScanner.pause === 'function') {
                     html5QrcodeScanner.pause();
-                    setTimeout(() => {
-                        updateStatus('Siap scan...');
-                        html5QrcodeScanner.resume();
-                    }, 1200);
+                    showSuccessModal({ code: parsedCode, name: productName, price: productPrice });
                 }
             } catch (error) {
                 console.error(error);
@@ -157,6 +195,16 @@
             qrbox: 250,
         });
         html5QrcodeScanner.render(onScanSuccess);
+
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                hideSuccessModal();
+                if (window.html5QrcodeScanner && typeof html5QrcodeScanner.resume === 'function') {
+                    updateStatus('Siap scan...');
+                    html5QrcodeScanner.resume();
+                }
+            });
+        }
     </script>
 </body>
 </html>
