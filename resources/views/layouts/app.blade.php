@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('favicon.svg') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/logo-rounded.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('img/logo-rounded.png') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-rounded.png') }}">
 
     <title>@yield('title', config('app.name', 'Sistem Kasir'))</title>
 
@@ -21,7 +21,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f6f8;
             color: #1d2939;
-            --sidebar-width: 220px;
+            --sidebar-width: 210px;
             --sidebar-transition: 0.25s ease;
         }
 
@@ -45,10 +45,10 @@
         .sidebar {
             background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
             color: #fff;
-            padding: 22px 18px;
+            padding: 16px 14px;
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            gap: 20px;
             position: sticky;
             top: 0;
             height: 100vh;
@@ -60,7 +60,7 @@
         }
 
         .brand {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             letter-spacing: 0.5px;
             text-transform: uppercase;
@@ -75,25 +75,25 @@
         .sidebar-top {
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            gap: 20px;
         }
 
         .sidebar-bottom {
             margin-top: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .sidebar-sections {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
         }
 
         .sidebar-section {
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
             background-color: rgba(255, 255, 255, 0.06);
             overflow: hidden;
         }
@@ -104,7 +104,7 @@
 
         .sidebar-single-link {
             display: block;
-            padding: 12px 16px;
+            padding: 10px 12px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.92);
             text-decoration: none;
@@ -122,7 +122,7 @@
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            padding: 12px 16px;
+            padding: 10px 12px;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.92);
             list-style: none;
@@ -140,7 +140,7 @@
             border-bottom: 2px solid currentColor;
             transform: rotate(45deg);
             transition: transform 0.2s ease;
-            margin-left: 12px;
+            margin-left: 8px;
         }
 
         .sidebar-section[open] .sidebar-caret {
@@ -150,16 +150,16 @@
         .sidebar-links {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 0 16px 16px;
+            gap: 6px;
+            padding: 0 12px 12px;
         }
 
         .sidebar-links a {
             color: rgba(255, 255, 255, 0.82);
             text-decoration: none;
-            font-weight: 500;
-            padding: 9px 12px;
-            border-radius: 10px;
+            font-weight: 600;
+            padding: 8px 10px;
+            border-radius: 8px;
             transition: background-color 0.2s, color 0.2s;
         }
 
@@ -178,18 +178,18 @@
             border: none;
             background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
             color: #fff;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
             width: 100%;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-            box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+            box-shadow: 0 8px 18px rgba(220, 38, 38, 0.24);
         }
 
         .logout-button:hover {
@@ -227,7 +227,7 @@
         .sidebar-toggle {
             position: fixed;
             top: 14px;
-            right: 14px;
+            left: 14px;
             width: 46px;
             height: 46px;
             border-radius: 12px;
@@ -237,6 +237,7 @@
             display: none;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
             cursor: pointer;
             z-index: 1002;
@@ -273,6 +274,13 @@
 
         .sidebar-toggle__icon::before { top: -7px; }
         .sidebar-toggle__icon::after { top: 7px; }
+
+        .sidebar-toggle__label {
+            display: none;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            font-size: 14px;
+        }
 
         .layout.has-sidebar-open .sidebar-toggle__icon {
             background: transparent;
@@ -389,6 +397,23 @@
             font-size: 13px;
         }
 
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+        }
+
+        .table-scroll table {
+            min-width: 560px;
+        }
+
+        @media (max-width: 640px) {
+            .table-scroll table {
+                min-width: 480px;
+            }
+        }
+
         .form-control,
         .form-select,
         .form-textarea {
@@ -483,46 +508,27 @@
         }
 
         @media (max-width: 1200px) {
-            :root {
-                --sidebar-width: 204px;
-            }
+            :root { --sidebar-width: 195px; }
         }
 
         @media (max-width: 1024px) {
-            :root {
-                --sidebar-width: 192px;
-            }
+            :root { --sidebar-width: 185px; }
 
             .sidebar {
-                padding: 18px 14px;
-                gap: 20px;
+                padding: 16px 12px;
+                gap: 16px;
             }
 
-            .sidebar-top {
-                gap: 18px;
-            }
-
-            .sidebar-sections {
-                gap: 12px;
-            }
-
-            .sidebar-links {
-                padding: 0 12px 12px;
-            }
-
-            .content {
-                padding: 20px 18px;
-            }
+            .sidebar-top { gap: 16px; }
+            .sidebar-sections { gap: 10px; }
+            .sidebar-links { padding: 0 10px 10px; }
+            .content { padding: 18px 16px; }
         }
 
         @media (max-width: 768px) {
-            :root {
-                --sidebar-width: 180px;
-            }
+            :root { --sidebar-width: 170px; }
 
-            body {
-                overflow-x: hidden;
-            }
+            body { overflow-x: hidden; }
 
             .layout {
                 display: flex;
@@ -535,61 +541,52 @@
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: min(82vw, 320px);
-                max-width: 340px;
+                width: min(78vw, 300px);
+                max-width: 320px;
                 height: 100vh;
                 max-height: 100vh;
-                padding: 18px 16px;
+                padding: 16px 14px;
                 overflow-y: auto;
                 box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
                 border-radius: 0;
                 transform: translateX(-100%);
             }
 
-            .layout.has-sidebar-open .sidebar {
-                transform: translateX(0);
-            }
-
-            .sidebar-toggle {
-                display: inline-flex;
-            }
+            .layout.has-sidebar-open .sidebar { transform: translateX(0); }
+            .sidebar-toggle { display: inline-flex; }
 
             .content {
                 margin-left: 0;
                 width: 100%;
                 max-width: 100%;
-                padding: 16px 14px 60px;
+                padding: 14px 12px 56px;
                 min-height: auto;
                 height: auto;
                 overflow: visible;
                 margin-top: 62px;
             }
 
-            .main-content {
-                min-height: auto;
+            .main-content { min-height: auto; }
+            .app-footer { padding: 12px; }
+            .sidebar-toggle {
+                padding: 0 14px;
+                width: auto;
+                min-width: 46px;
+                position: sticky;
+                top: 12px;
+                left: 12px;
+                right: auto;
+                align-self: flex-start;
             }
-
-            .app-footer {
-                padding: 14px;
-            }
+            .sidebar-toggle__label { display: inline; }
         }
 
         @media (max-width: 640px) {
-            :root {
-                --sidebar-width: 172px;
-            }
+            :root { --sidebar-width: 160px; }
 
-            .sidebar {
-                padding: 18px 12px;
-            }
-
-            .content {
-                padding: 18px 14px;
-            }
-
-            .main-content {
-                max-width: 100%;
-            }
+            .sidebar { padding: 14px 12px; }
+            .content { padding: 14px 12px; }
+            .main-content { max-width: 100%; }
         }
     </style>
 
@@ -608,6 +605,7 @@
             aria-expanded="false"
         >
             <span class="sidebar-toggle__icon" aria-hidden="true"></span>
+            <span class="sidebar-toggle__label">Menu</span>
         </button>
 
         <div class="content">

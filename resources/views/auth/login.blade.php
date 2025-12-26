@@ -16,21 +16,21 @@
             min-height: 100vh;
             display: grid;
             place-items: center;
-            padding: 12px;
-            overflow: hidden;
+            padding: 12px 10px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .login-container {
             background: white;
-            border-radius: 20px;
+            border-radius: 18px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
             overflow: hidden;
-            max-width: 400px;
-            width: 100%;
+            max-width: 340px;
+            width: min(340px, 92vw);
             display: flex;
             flex-direction: column;
             animation: slideUp 0.5s ease-out;
-            max-height: 92vh;
         }
 
         @keyframes slideUp {
@@ -46,7 +46,7 @@
 
         .login-left {
             background: linear-gradient(135deg, #c9302c 0%, #e74c3c 100%);
-            padding: 28px 24px 22px;
+            padding: 18px 16px 14px;
             flex: none;
             color: white;
             display: flex;
@@ -54,18 +54,18 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .logo {
-            width: 120px;
-            height: 120px;
+            width: 96px;
+            height: 96px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 22px;
+            margin-bottom: 14px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 4px solid white;
@@ -79,34 +79,34 @@
         }
 
         .login-left h1 {
-            font-size: 32px;
+            font-size: 26px;
             margin-bottom: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .login-right {
-            padding: 22px 22px 26px;
+            padding: 16px 16px 18px;
             flex: none;
             background: white;
         }
 
         .login-header {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
         }
 
         .login-header h2 {
             color: #1e3c72;
-            font-size: 26px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            margin-bottom: 8px;
         }
 
         .login-header p {
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
         }
 
         .password-wrapper {
@@ -155,24 +155,47 @@
             font-size: 14px;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.3s ease;
-            background: #f8f9fa;
+            background-color: #f8f9fa;
         }
 
-        .form-group input:focus {
+        .form-group select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            display: block;
+            max-width: 100%;
+            min-width: 0;
+            padding-right: 44px;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #475467 50%),
+                linear-gradient(135deg, #475467 50%, transparent 50%),
+                linear-gradient(to right, #e0e0e0, #e0e0e0);
+            background-position:
+                calc(100% - 18px) 50%,
+                calc(100% - 12px) 50%,
+                calc(100% - 32px) 50%;
+            background-size: 8px 8px, 8px 8px, 1px 16px;
+            background-repeat: no-repeat;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #1e3c72;
-            background: white;
+            background-color: white;
             box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
         }
 
-        .form-group input.is-invalid {
+        .form-group input.is-invalid,
+        .form-group select.is-invalid {
             border-color: #c9302c;
         }
 
@@ -187,8 +210,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            font-size: 14px;
+            margin-bottom: 16px;
+            font-size: 13px;
         }
 
         .remember-me {
@@ -215,12 +238,12 @@
 
         .btn-login {
             width: 100%;
-            padding: 16px;
+            padding: 12px;
             background: linear-gradient(135deg, #c9302c 0%, #e74c3c 100%);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -267,20 +290,42 @@
             border: 1px solid #cfc;
         }
 
+        @media (max-width: 520px) {
+            .login-container {
+                width: min(360px, 96vw);
+            }
+
+            .form-group input,
+            .form-group select {
+                font-size: 16px;
+            }
+
+            .form-group select {
+                width: 100%;
+                max-width: calc(100vw - 40px);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .form-group select {
+                max-width: calc(100vw - 28px);
+            }
+        }
+
         @media (max-width: 640px) {
             .login-container {
-                border-radius: 16px;
+                border-radius: 14px;
                 max-height: none;
-                min-height: calc(100vh - 24px);
+                min-height: auto;
                 overflow: auto;
             }
 
             .login-left {
-                padding: 24px 18px 20px;
+                padding: 16px 14px 12px;
             }
 
             .login-right {
-                padding: 20px 16px 24px;
+                padding: 14px 14px 16px;
             }
 
         }
@@ -318,6 +363,24 @@
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
+
+                <div class="form-group">
+                    <label for="role">Masuk sebagai</label>
+                    <select
+                        id="role"
+                        name="role"
+                        class="@error('role') is-invalid @enderror"
+                        required
+                    >
+                        <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih role</option>
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="kasir" {{ old('role') === 'kasir' ? 'selected' : '' }}>Kasir</option>
+                        <option value="gudang" {{ old('role') === 'gudang' ? 'selected' : '' }}>Gudang</option>
+                    </select>
+                    @error('role')
+                        <span class="invalid-feedback">{{ $message }}</span>
+                    @enderror
+                </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -426,4 +489,3 @@
         });
     </script>
 @endpush
-

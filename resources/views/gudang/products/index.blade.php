@@ -5,10 +5,10 @@
 @push('styles')
     <style>
         .product-console {
-            border-radius: 22px;
-            padding: 24px 26px;
+            border-radius: 16px;
+            padding: 16px 18px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
             background-color: #ffffff;
         }
 
@@ -16,16 +16,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 0 14px;
-            margin: 0 0 16px;
+            padding: 0 0 10px;
+            margin: 0 0 12px;
             border-bottom: 1px solid #e2e8f0;
         }
 
         .product-console__form {
-            margin-bottom: 16px;
-            padding: 14px 16px;
+            margin-bottom: 12px;
+            padding: 12px 12px;
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            border-radius: 12px;
             background: #f8fafc;
             box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.04);
         }
@@ -33,7 +33,7 @@
         .product-console__row {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
             align-items: flex-end;
         }
 
@@ -51,11 +51,11 @@
 
         .product-console__field input,
         .product-console__field select {
-            padding: 11px 14px;
-            border-radius: 12px;
+            padding: 9px 12px;
+            border-radius: 10px;
             border: 1px solid #d0d5dd;
-            min-width: 190px;
-            font-size: 14px;
+            min-width: 170px;
+            font-size: 13px;
             color: #111827;
             background-color: #f8fafc;
             transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
@@ -141,13 +141,13 @@
         .product-console__input-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .product-console__actions {
             margin-left: auto;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
 
@@ -159,10 +159,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.2px;
             text-decoration: none;
             border: none;
@@ -173,7 +173,7 @@
         .button--primary {
             background-color: #2563eb;
             color: #ffffff;
-            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
         }
 
         .button--primary:hover {
@@ -225,7 +225,7 @@
 
         nav[aria-label="Pagination Navigation"] p {
             margin: 0;
-            font-size: 13px;
+            font-size: 12px;
             color: #475467;
         }
 
@@ -235,30 +235,35 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 12px;
-            font-size: 14px;
+            padding: 7px 11px;
+            font-size: 13px;
             font-weight: 600;
             color: #1f2937;
-            background-color: #ffffff;
+            background-color: #fff;
             border: 1px solid #d0d5dd;
-            border-radius: 10px;
+            border-radius: 9px;
             text-decoration: none;
-            min-width: 40px;
+            min-width: 36px;
+            transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
         }
 
         nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
-            background-color: #2563eb;
-            color: #ffffff;
-            border-color: #2563eb;
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
         }
 
-        nav[aria-label="Pagination Navigation"] a:hover {
-            filter: brightness(0.97);
+        nav[aria-label="Pagination Navigation"] a:hover,
+        nav[aria-label="Pagination Navigation"] span > a:hover {
+            border-color: #94a3b8;
+            color: #0f172a;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
         }
 
         nav[aria-label="Pagination Navigation"] svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
         }
 
         @media (max-width: 640px) {
@@ -390,51 +395,53 @@
         @if ($products->isEmpty())
             <p class="muted">Belum ada produk yang tercatat.</p>
         @else
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Kode</th>
-                        <th>Produk</th>
-                        <th>Kategori</th>
-                        <th>Harga</th>
-                        <th style="width: 120px; text-align: center;">Stok</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($products as $product)
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td>#{{ $product->id }}</td>
-                            <td>{{ $product->code ?? '-' }}</td>
-                            <td>{{ $product->name }}</td>
-                            <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
-                            <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
-                            <td style="text-align: center; white-space: nowrap;">
-                                {{ $product->is_stock_unlimited ? 'Tidak terbatas' : $product->stock }}
-                            </td>
-                            <td>{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</td>
-                            <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-                                <a href="{{ route('gudang.products.qr', $product) }}" class="chip-button chip-button--gray">QR Code</a>
-                                <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--yellow">Detail</a>
-                                <a href="{{ route('gudang.products.edit', $product) }}?redirect_to={{ urlencode(request()->fullUrl()) }}" class="chip-button chip-button--blue">Edit</a>
-                                <form
-                                    method="POST"
-                                    action="{{ route('gudang.products.destroy', $product) }}"
-                                    onsubmit="return confirm('Hapus produk {{ $product->name }} secara permanen?')"
-                                >
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="chip-button chip-button--danger">
-                                        Hapus
-                                    </button>
-                                </form>
-                            </td>
+                            <th>ID</th>
+                            <th>Kode</th>
+                            <th>Produk</th>
+                            <th>Kategori</th>
+                            <th>Harga</th>
+                            <th style="width: 120px; text-align: center;">Stok</th>
+                            <th>Status</th>
+                            <th></th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($products as $product)
+                            <tr>
+                                <td>#{{ $product->id }}</td>
+                                <td>{{ $product->code ?? '-' }}</td>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
+                                <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    {{ $product->display_stock }}
+                                </td>
+                                <td>{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</td>
+                                <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                                    <a href="{{ route('gudang.products.qr', $product) }}" class="chip-button chip-button--gray">QR Code</a>
+                                    <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--yellow">Detail</a>
+                                    <a href="{{ route('gudang.products.edit', $product) }}?redirect_to={{ urlencode(request()->fullUrl()) }}" class="chip-button chip-button--blue">Edit</a>
+                                    <form
+                                        method="POST"
+                                        action="{{ route('gudang.products.destroy', $product) }}"
+                                        onsubmit="return confirm('Hapus produk {{ $product->name }} secara permanen?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="chip-button chip-button--danger">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
             <div style="margin-top: 16px;">
                 {{ $products->links() }}

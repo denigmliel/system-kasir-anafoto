@@ -39,6 +39,6 @@ class Product extends Model
 
     public function getDisplayStockAttribute(): string
     {
-        return $this->is_stock_unlimited ? '-' : (string) $this->stock;
+        return (string) $this->stock;
     }
 }

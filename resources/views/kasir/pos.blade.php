@@ -4,21 +4,49 @@
 
 @push('styles')
     <style>
+        .pos-compact {
+            font-size: 12px;
+            width: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 6px 0 12px;
+        }
+
+        .pos-compact .card {
+            padding: 10px !important;
+            border-radius: 10px !important;
+        }
+
+        .pos-compact h1.page-title {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .pos-compact h2 {
+            font-size: 14px;
+        }
+
+        .pos-compact h3 {
+            font-size: 13px;
+        }
+
         .form-grid {
             display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         }
 
         .form-control,
         .form-select,
         .form-textarea {
             width: 100%;
-            padding: 10px 12px;
+            padding: 7px 10px;
             border-radius: 8px;
             border: 1px solid #d0d5dd;
             background-color: #fff;
-            font-size: 14px;
+            font-size: 12px;
             transition: border-color 0.2s;
         }
 
@@ -27,19 +55,19 @@
         .form-textarea:focus {
             outline: none;
             border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+            box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.12);
         }
 
         .form-label {
             display: block;
             font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 14px;
+            margin-bottom: 4px;
+            font-size: 11px;
         }
 
         .input-error {
-            margin-top: 6px;
-            font-size: 13px;
+            margin-top: 5px;
+            font-size: 11px;
             color: #b42318;
         }
 
@@ -47,11 +75,12 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 16px;
+            padding: 7px 11px;
             border-radius: 8px;
             border: none;
             font-weight: 600;
             cursor: pointer;
+            font-size: 12px;
             transition: transform 0.1s, box-shadow 0.1s;
         }
 
@@ -79,10 +108,10 @@
         .low-stock-alert {
             display: none;
             align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 16px;
-            padding: 14px 16px;
-            border-radius: 12px;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 9px 11px;
+            border-radius: 10px;
             border: 1px solid #facc15;
             background-color: #fef9c3;
             color: #854d0e;
@@ -94,8 +123,8 @@
 
         .low-stock-alert__icon {
             flex-shrink: 0;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background-color: #facc15;
             color: #854d0e;
@@ -107,35 +136,35 @@
 
         .low-stock-alert__title {
             font-weight: 600;
-            margin-bottom: 4px;
-            font-size: 14px;
+            margin-bottom: 3px;
+            font-size: 12px;
         }
 
         .low-stock-alert__list {
             margin: 0;
             padding-left: 18px;
             list-style: disc;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 11px;
+            line-height: 1.4;
         }
 
         .editing-notice {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            padding: 14px 18px;
-            border-radius: 14px;
+            gap: 10px;
+            padding: 9px 11px;
+            border-radius: 10px;
             border: 1px solid #fcd34d;
             background-color: #fffbeb;
             color: #92400e;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
 
         .editing-notice__actions {
             display: inline-flex;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
 
@@ -151,8 +180,8 @@
         .items-header,
         .item-row {
             display: grid;
-            grid-template-columns: 220px minmax(260px, 1fr) 140px 110px 110px 64px;
-            gap: 8px;
+            grid-template-columns: 200px minmax(200px, 1fr) 120px 100px 100px 60px;
+            gap: 6px;
             align-items: start;
         }
 
@@ -183,14 +212,14 @@
 
         .items-header {
             background-color: #f8fafc;
-            border-radius: 12px;
-            padding: 14px 18px;
+            border-radius: 9px;
+            padding: 9px 11px;
             font-weight: 600;
             color: #1f2937;
         }
 
         .items-header-cell {
-            font-size: 14px;
+            font-size: 11px;
         }
 
         .items-header-cell--right {
@@ -198,11 +227,11 @@
         }
 
         .items-body-scroll {
-            margin-top: 12px;
+            margin-top: 10px;
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             background-color: #fff;
-            max-height: 360px;
+            max-height: 320px;
             overflow-y: auto;
             overflow-x: hidden;
             padding-right: 6px;
@@ -217,7 +246,7 @@
         }
 
         .item-row {
-            padding: 18px;
+            padding: 14px;
             background-color: #fff;
             border-bottom: 1px solid #eef2f7;
             position: relative;
@@ -237,11 +266,11 @@
         .item-cell {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .item-cell-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #64748b;
             letter-spacing: 0.03em;
@@ -442,16 +471,16 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 1px solid #d0d5dd;
-            border-radius: 8px;
+            border-radius: 7px;
             background-color: #fff;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .currency-input:focus-within {
             border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+            box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.12);
         }
 
         .currency-prefix {
@@ -464,21 +493,21 @@
             outline: none;
             background: transparent;
             flex: 1;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .items-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .items-toolbar__actions {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .smart-scan-layer {
@@ -724,14 +753,15 @@
 @endpush
 
 @section('content')
-    <h1 class="page-title">Point of Sale</h1>
+    <div class="pos-compact">
+        <h1 class="page-title">Point of Sale</h1>
 
-    <div class="grid" style="gap: 24px; grid-template-columns: minmax(0, 1fr);">
-        <div class="card">
-            <h2 style="margin: 0 0 12px; font-size: 20px;">
+        <div class="grid" style="gap: 16px; grid-template-columns: minmax(0, 1fr);">
+            <div class="card">
+                <h2 style="margin: 0 0 8px; font-size: 16px;">
                 {{ $editingTransaction ? 'Perbarui Transaksi' : 'Transaksi Baru' }}
             </h2>
-            <p class="muted" style="margin-bottom: 20px;">
+            <p class="muted" style="margin-bottom: 12px; font-size: 13px;">
                 @if ($editingTransaction)
                     Anda sedang mengubah transaksi <strong>{{ $editingTransaction['code'] ?? '' }}</strong>. Sesuaikan item atau pembayaran lalu simpan untuk memperbarui data.
                 @endif
@@ -743,7 +773,7 @@
                         <div style="font-weight: 600; margin-bottom: 4px;">
                             Mengedit transaksi {{ $editingTransaction['code'] ?? '' }}
                         </div>
-                        <div style="font-size: 14px;">
+                        <div style="font-size: 13px;">
                             Tambahkan produk atau ubah jumlah, kemudian simpan untuk memperbarui struk.
                         </div>
                     </div>
@@ -801,21 +831,23 @@
                     $oldItems = old('items', $prefilledItems ?: $defaultItems);
                 @endphp
 
-                <div class="card" style="padding: 32px; border: 1px dashed #d0d5dd; background-color: #f9fbff;">
+                <div class="card" style="padding: 18px; border: 1px dashed #d0d5dd; background-color: #f9fbff;">
                     <div class="items-toolbar">
-                        <h3 style="margin: 0; font-size: 18px;">Daftar Item</h3>
+                        <h3 style="margin: 0; font-size: 15px;">Daftar Item</h3>
                         <div class="items-toolbar__actions">
-                            <button
-                                type="button"
+                            <a
+                                href="{{ route('kasir.mobile.scanner') }}"
                                 class="btn btn-secondary btn-icon"
                                 id="smart-scan-toggle"
-                                title="Scan QR produk dengan kamera"
-                                aria-label="Scan QR produk dengan kamera"
+                                title="Buka Mobile Scanner"
+                                aria-label="Buka Mobile Scanner"
+                                target="_blank"
+                                rel="noopener"
                             >
                                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                     <path d="M7 5a2 2 0 0 0-2 2v2H3V7a4 4 0 0 1 4-4h2v2H7Zm8-2h2a4 4 0 0 1 4 4v2h-2V7a2 2 0 0 0-2-2h-2V3Zm-8 16h2v2H7a4 4 0 0 1-4-4v-2h2v2a2 2 0 0 0 2 2Zm12-2a2 2 0 0 1-2 2h-2v2h2a4 4 0 0 0 4-4v-2h-2v2ZM8 9.5A1.5 1.5 0 1 1 9.5 11 1.5 1.5 0 0 1 8 9.5ZM12 12a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-2a2 2 0 1 0-2-2 2 2 0 0 0 2 2Zm-3 4h6v2H9Zm8 0h2v2h-2Zm-10 0h2v2H7Z"/>
                                 </svg>
-                            </button>
+                            </a>
                             <button type="button" class="btn btn-secondary" id="add-item-btn">Tambah Item</button>
                         </div>
                     </div>
@@ -1002,9 +1034,8 @@
                                                                     'id' => $unit->id,
                                                                     'name' => $unit->name,
                                                                     'price' => $unit->price,
-                                                                    'stock' => $product->is_stock_unlimited ? '' : $product->stock,
+                                                                    'stock' => $product->stock,
                                                                     'stockLabel' => $product->display_stock,
-                                                                    'isUnlimited' => $product->is_stock_unlimited,
                                                                 ];
                                                             });
                                                             $unitNames = $product->units->pluck('name')->filter()->implode(', ');
@@ -1019,8 +1050,7 @@
                                                             data-product-code="{{ $product->code ?? ('#' . $product->id) }}"
                                                             data-category-id="{{ $product->category_id ?? 'uncategorized' }}"
                                                             data-category-name="{{ optional($product->category)->name ?? 'Tanpa Kategori' }}"
-                                                            data-stock="{{ $product->is_stock_unlimited ? '' : $product->stock }}"
-                                                            data-is-unlimited="{{ $product->is_stock_unlimited ? '1' : '0' }}"
+                                                            data-stock="{{ $product->stock }}"
                                                             data-stock-label="{{ $product->display_stock }}"
                                                             data-units='@json($unitPayload)'
                                                             data-units-text="{{ $unitNames }}"
@@ -1051,8 +1081,7 @@
                                                             value="{{ $unit->id }}"
                                                             data-price="{{ $unit->price }}"
                                                             data-unit="{{ $unit->name }}"
-                                                            data-stock="{{ $selectedProduct->is_stock_unlimited ? '' : $selectedProduct->stock }}"
-                                                            data-is-unlimited="{{ $selectedProduct->is_stock_unlimited ? '1' : '0' }}"
+                                                            data-stock="{{ $selectedProduct->stock }}"
                                                             data-stock-label="{{ $selectedProduct->display_stock }}"
                                                             @selected((int) $unitId === $unit->id)
                                                         >
@@ -1193,9 +1222,8 @@
                                         'id' => $unit->id,
                                         'name' => $unit->name,
                                         'price' => $unit->price,
-                                        'stock' => $product->is_stock_unlimited ? '' : $product->stock,
+                                        'stock' => $product->stock,
                                         'stockLabel' => $product->display_stock,
-                                        'isUnlimited' => $product->is_stock_unlimited,
                                     ];
                                 });
                                 $unitNames = $product->units->pluck('name')->filter()->implode(', ');
@@ -1210,8 +1238,7 @@
                                 data-product-code="{{ $product->code ?? ('#' . $product->id) }}"
                                 data-category-id="{{ $product->category_id ?? 'uncategorized' }}"
                                 data-category-name="{{ optional($product->category)->name ?? 'Tanpa Kategori' }}"
-                                data-stock="{{ $product->is_stock_unlimited ? '' : $product->stock }}"
-                                data-is-unlimited="{{ $product->is_stock_unlimited ? '1' : '0' }}"
+                                data-stock="{{ $product->stock }}"
                                 data-stock-label="{{ $product->display_stock }}"
                                 data-units='@json($unitPayload)'
                                 data-units-text="{{ $unitNames }}"
@@ -1255,6 +1282,7 @@
             </div>
         </div>
     </template>
+</div>
 @endsection
 
 @push('scripts')
@@ -1951,10 +1979,6 @@
                         return;
                     }
 
-                    if (option.dataset.isUnlimited === '1') {
-                        return;
-                    }
-
                     const rawStock = option.dataset.stock;
                     if (rawStock === undefined || rawStock === null || rawStock === '') {
                         return;
@@ -2131,8 +2155,7 @@
                     optionEl.textContent = hasPrice ? `${unit.name} - ${formatCurrency(priceNumber)}` : unit.name;
                     optionEl.dataset.price = unit.price || 0;
                     optionEl.dataset.unit = unit.name || '';
-                    optionEl.dataset.stock = unit.stock || '';
-                    optionEl.dataset.isUnlimited = unit.isUnlimited ? '1' : '0';
+                    optionEl.dataset.stock = unit.stock ?? '';
                     optionEl.dataset.stockLabel = unit.stockLabel || '';
                     unitSelect.appendChild(optionEl);
                 });
@@ -2566,10 +2589,7 @@
                         priceLabel = `Harga: ${formatCurrency(Number(rawMinPrice))}`;
                     }
 
-                    const isUnlimited = option.dataset.isUnlimited === '1';
-                    const stockLabel = isUnlimited
-                        ? 'Stok: Tidak terbatas'
-                        : (option.dataset.stockLabel ? `Stok: ${option.dataset.stockLabel}` : '');
+                    const stockLabel = option.dataset.stockLabel ? `Stok: ${option.dataset.stockLabel}` : '';
 
                     const unitNames = option.dataset.unitsText || '';
                     const unitLabel = unitNames ? `Satuan: ${unitNames}` : '';
@@ -2946,15 +2966,9 @@
             }
 
             if (smartScanToggle) {
-                smartScanToggle.addEventListener('click', () => {
-                    const isActive = smartScanActive && smartScanPanel && !smartScanPanel.hidden;
-                    if (isActive) {
-                        stopSmartScan();
-                        hideSmartScanPanel();
-                        updateSmartScanStatus('Pemindaian dihentikan. Tekan ikon kamera untuk memulai lagi.', 'info');
-                    } else {
-                        startSmartScan();
-                    }
+                smartScanToggle.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    window.open("{{ route('kasir.mobile.scanner') }}", '_blank', 'noopener,noreferrer');
                 });
             }
 

@@ -4,22 +4,32 @@
 
 @push('styles')
     <style>
+        .report-shell {
+            max-width: none;
+            margin: 0;
+            width: 100%;
+        }
+
         .report-hero {
             background: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 50%, #f8fafc 100%);
-            border-radius: 18px;
-            padding: 18px 20px;
+            border-radius: 16px;
+            padding: 12px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 12px;
             box-shadow: 0 14px 32px rgba(59, 130, 246, 0.16);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
 
         .report-hero .meta {
             margin: 4px 0 0;
             color: #475569;
+        }
+
+        .report-hero .page-title {
+            font-size: 20px;
         }
 
         .hero-chips {
@@ -51,34 +61,35 @@
 
         .filters-card {
             background: #fff;
-            border-radius: 16px;
-            padding: 14px;
+            border-radius: 14px;
+            padding: 12px;
             box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
             border: 1px solid #e2e8f0;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
+            gap: 10px;
             align-items: end;
         }
 
         .filters-grid label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #475569;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             display: block;
         }
 
         .filters-grid select {
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: 8px 10px;
+            border-radius: 9px;
             border: 1px solid #d0d5dd;
             width: 100%;
             background: #fff;
+            font-size: 12.5px;
         }
 
         .category-combobox {
@@ -87,10 +98,11 @@
 
         .category-combobox input {
             width: 100%;
-            padding: 10px 12px;
-            border-radius: 12px;
+            padding: 8px 10px;
+            border-radius: 9px;
             border: 1px solid #d0d5dd;
             background: #fff;
+            font-size: 12.5px;
         }
 
         .combo-list {
@@ -132,10 +144,10 @@
             align-items: center;
             justify-content: center;
             border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
+            border-radius: 10px;
+            padding: 9px 14px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12.5px;
             letter-spacing: 0.2px;
             cursor: pointer;
             color: #ffffff;
@@ -163,26 +175,26 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 14px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .stat-card {
             background: #fff;
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 12px;
+            padding: 12px;
             border: 1px solid #e2e8f0;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
         }
 
         .stat-title {
             margin: 0;
-            font-size: 13px;
+            font-size: 12px;
             color: #475569;
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 800;
             margin-top: 6px;
         }
@@ -200,10 +212,10 @@
 
         .table-modern th,
         .table-modern td {
-            padding: 12px 14px;
+            padding: 9px 10px;
             border-bottom: 1px solid #e2e8f0;
             text-align: left;
-            font-size: 14px;
+            font-size: 12.5px;
         }
 
         .table-modern th {
@@ -221,10 +233,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 10px;
+            padding: 5px 9px;
             border-radius: 999px;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             letter-spacing: 0.02em;
         }
 
@@ -238,11 +250,6 @@
             color: #b91c1c;
         }
 
-        .pill--unlimited {
-            background: #eef2ff;
-            color: #312e81;
-        }
-
         @media (max-width: 900px) {
             .filters-grid {
                 grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -252,138 +259,122 @@
 @endpush
 
 @section('content')
-    <div class="report-hero">
-        <div>
-            <h1 class="page-title" style="margin:0;">Laporan Stok</h1>
-            <p class="meta">Pantau stok, nilai persediaan, dan status produk sesuai filter.</p>
+    <div class="report-shell">
+        <div class="report-hero">
+            <div>
+                <h1 class="page-title" style="margin:0;">Laporan Stok</h1>
+            </div>
         </div>
-    </div>
 
-    <div class="filters-card">
-        <form method="GET" action="{{ route('gudang.reports.stock') }}">
-            <div class="filters-grid">
-                <div>
-                    @php
-                        $selectedCategory = $categories->firstWhere('id', request('category_id'));
-                        $selectedCategoryName = $selectedCategory->name ?? '';
-                    @endphp
-                    <label for="category_input">Kategori</label>
-                    <div
-                        class="category-combobox"
-                        data-options='@json($categories->map(fn($c) => ["id" => $c->id, "name" => $c->name]))'
-                    >
-                        <input
-                            type="text"
-                            id="category_input"
-                            name="category_name"
-                            value="{{ $selectedCategoryName }}"
-                            placeholder="Cari kategori..."
-                            autocomplete="off"
+        <div class="filters-card">
+            <form method="GET" action="{{ route('gudang.reports.stock') }}">
+                <div class="filters-grid">
+                    <div>
+                        @php
+                            $selectedCategory = $categories->firstWhere('id', request('category_id'));
+                            $selectedCategoryName = $selectedCategory->name ?? '';
+                        @endphp
+                        <label for="category_input">Kategori</label>
+                        <div
+                            class="category-combobox"
+                            data-options='@json($categories->map(fn($c) => ["id" => $c->id, "name" => $c->name]))'
                         >
-                        <input type="hidden" name="category_id" id="category_id" value="{{ request('category_id') }}">
-                        <div class="combo-list" id="category_list"></div>
+                            <input
+                                type="text"
+                                id="category_input"
+                                name="category_name"
+                                value="{{ $selectedCategoryName }}"
+                                placeholder="Cari kategori..."
+                                autocomplete="off"
+                            >
+                            <input type="hidden" name="category_id" id="category_id" value="{{ request('category_id') }}">
+                            <div class="combo-list" id="category_list"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="all" @selected(request('status', 'all') === 'all')>Semua</option>
+                            <option value="active" @selected(request('status') === 'active')>Aktif</option>
+                            <option value="inactive" @selected(request('status') === 'inactive')>Tidak Aktif</option>
+                        </select>
+                    </div>
+
+                    <div class="filters-actions">
+                        <button type="submit" class="report-button report-button--blue">Terapkan</button>
+                        <a href="{{ route('gudang.reports.stock') }}" class="report-button report-button--ghost">Reset</a>
                     </div>
                 </div>
+            </form>
+        </div>
 
-                <div>
-                    <label for="status">Status</label>
-                    <select id="status" name="status">
-                        <option value="all" @selected(request('status', 'all') === 'all')>Semua</option>
-                        <option value="active" @selected(request('status') === 'active')>Aktif</option>
-                        <option value="inactive" @selected(request('status') === 'inactive')>Tidak Aktif</option>
-                    </select>
-                </div>
-
-                <div class="filters-actions">
-                    <button type="submit" class="report-button report-button--blue">Terapkan</button>
-                    <a href="{{ route('gudang.reports.stock') }}" class="report-button report-button--ghost">Reset</a>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total stok (berdasarkan filter)</div>
+                <div class="stat-value">{{ number_format($totalStock) }}</div>
+                <div class="stat-muted">Mengikuti filter yang dipilih</div>
             </div>
-        </form>
-    </div>
+            <div class="stat-card">
+                <div class="stat-title">Nilai persediaan (berdasarkan filter)</div>
+                <div class="stat-value">Rp{{ number_format($totalValue, 0, ',', '.') }}</div>
+                <div class="stat-muted">Perkalian stok x harga</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Ringkasan halaman ini</div>
+                <div class="stat-value">{{ number_format($pageItems) }} produk</div>
+                <div class="stat-muted">Stok: {{ number_format($pageStock) }} | Nilai: Rp{{ number_format($pageValue, 0, ',', '.') }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Status produk (halaman ini)</div>
+                <div class="stat-value">{{ number_format($pageActive) }} aktif</div>
+                <div class="stat-muted">Nonaktif: {{ number_format($pageInactive) }}</div>
+            </div>
+        </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-title">Total stok (berdasarkan filter)</div>
-            <div class="stat-value">{{ number_format($totalStock) }}</div>
-            <div class="stat-muted">Tidak termasuk produk stok tidak terbatas</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Nilai persediaan (berdasarkan filter)</div>
-            <div class="stat-value">Rp{{ number_format($totalValue, 0, ',', '.') }}</div>
-            <div class="stat-muted">Perkalian stok x harga</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Ringkasan halaman ini</div>
-            <div class="stat-value">{{ number_format($pageItems) }} produk</div>
-            <div class="stat-muted">Stok: {{ number_format($pageStock) }} | Nilai: Rp{{ number_format($pageValue, 0, ',', '.') }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Status produk (halaman ini)</div>
-            <div class="stat-value">{{ number_format($pageActive) }} aktif</div>
-            <div class="stat-muted">Nonaktif: {{ number_format($pageInactive) }}</div>
-        </div>
-    </div>
-
-    <div class="card" style="padding:0; overflow:hidden;">
-        @if ($products->isEmpty())
-            <p class="muted" style="padding: 16px 18px;">Tidak ada data stok untuk filter yang dipilih.</p>
-        @else
-            <div style="overflow-x:auto;">
-                <table class="table-modern">
-                    <thead>
-                        <tr>
-                            <th style="min-width: 70px;">ID</th>
-                            <th style="min-width: 220px;">Produk</th>
-                            <th style="min-width: 160px;">Kategori</th>
-                            <th style="min-width: 140px;">Stok</th>
-                            <th style="min-width: 120px;">Harga</th>
-                            <th style="min-width: 140px;">Nilai</th>
-                            <th style="min-width: 120px;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($products as $product)
-                            @php
-                                $isUnlimited = $product->is_stock_unlimited;
-                                $stockLabel = $isUnlimited ? 'Tidak terbatas' : ($product->stock . ' ' . $product->unit);
-                                $value = $isUnlimited ? null : $product->stock * $product->price;
-                            @endphp
+        <div class="card" style="padding:0; overflow:hidden;">
+            @if ($products->isEmpty())
+                <p class="muted" style="padding: 16px 18px;">Tidak ada data stok untuk filter yang dipilih.</p>
+            @else
+                <div class="table-scroll">
+                    <table class="table-modern">
+                        <thead>
                             <tr>
-                                <td>#{{ $product->id }}</td>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
-                                <td>
-                                    @if ($isUnlimited)
-                                        <span class="pill pill--unlimited">Tidak terbatas</span>
-                                    @else
-                                        {{ $stockLabel }}
-                                    @endif
-                                </td>
-                                <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
-                                <td>
-                                    @if (is_null($value))
-                                        -
-                                    @else
-                                        Rp{{ number_format($value, 0, ',', '.') }}
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($product->is_active)
-                                        <span class="pill pill--active">Aktif</span>
-                                    @else
-                                        <span class="pill pill--inactive">Tidak aktif</span>
-                                    @endif
-                                </td>
+                                <th style="min-width: 70px;">ID</th>
+                                <th style="min-width: 220px;">Produk</th>
+                                <th style="min-width: 160px;">Kategori</th>
+                                <th style="min-width: 140px;">Stok</th>
+                                <th style="min-width: 120px;">Harga</th>
+                                <th style="min-width: 140px;">Nilai</th>
+                                <th style="min-width: 120px;">Status</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div style="padding: 16px 18px;">
-                {{ $products->links() }}
-            </div>
-        @endif
+                        </thead>
+                        <tbody>
+                            @foreach ($products as $product)
+                                <tr>
+                                    <td>#{{ $product->id }}</td>
+                                    <td>{{ $product->name }}</td>
+                                    <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
+                                    <td>{{ $product->stock }} {{ $product->unit }}</td>
+                                    <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
+                                    <td>Rp{{ number_format($product->stock * $product->price, 0, ',', '.') }}</td>
+                                    <td>
+                                        @if ($product->is_active)
+                                            <span class="pill pill--active">Aktif</span>
+                                        @else
+                                            <span class="pill pill--inactive">Tidak aktif</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div style="padding: 16px 18px;">
+                    {{ $products->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 @endsection
 

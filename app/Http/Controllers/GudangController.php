@@ -27,9 +27,7 @@ class GudangController extends Controller
             'productCount' => Product::count(),
             'activeProductCount' => Product::where('is_active', true)->count(),
             'inactiveProductCount' => Product::where('is_active', false)->count(),
-            'lowStockCount' => Product::where('is_stock_unlimited', false)
-                ->where('stock', '<=', self::LOW_STOCK_THRESHOLD)
-                ->count(),
+            'lowStockCount' => Product::where('stock', '<=', self::LOW_STOCK_THRESHOLD)->count(),
             'categoryCount' => Category::count(),
             'movementToday' => StockMovement::where('created_at', '>=', $startOfDay)->count(),
             'stockInToday' => StockMovement::where('type', 'in')
@@ -47,10 +45,9 @@ class GudangController extends Controller
 
         $recentlyUpdatedProducts = Product::orderByDesc('updated_at')
             ->limit(5)
-            ->get(['id', 'name', 'stock', 'unit', 'is_stock_unlimited', 'updated_at']);
+            ->get(['id', 'name', 'stock', 'unit', 'updated_at']);
 
-        $topLowStocks = Product::where('is_stock_unlimited', false)
-            ->where('stock', '<=', self::LOW_STOCK_THRESHOLD)
+        $topLowStocks = Product::where('stock', '<=', self::LOW_STOCK_THRESHOLD)
             ->orderBy('stock')
             ->limit(5)
             ->get();
@@ -115,7 +112,6 @@ class GudangController extends Controller
             : self::LOW_STOCK_THRESHOLD;
 
         $query = Product::with('category')
-            ->where('is_stock_unlimited', false)
             ->where('stock', '<=', $threshold)
             ->orderBy('stock')
             ->orderBy('name');
@@ -180,7 +176,7 @@ class GudangController extends Controller
                 'max:20',
                 function ($attribute, $value, $fail) {
                     if (! $this->isValidStockInput($value)) {
-                        $fail('Stok harus berupa angka atau "-" bila stok tidak dapat dihitung.');
+                        $fail('Stok harus berupa angka.');
                     }
                 },
             ],
@@ -191,7 +187,7 @@ class GudangController extends Controller
             'default_unit' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        [$stockValue, $isStockUnlimited] = $this->normalizeStockInput($data['stock']);
+        [$stockValue] = $this->normalizeStockInput($data['stock']);
         $categoryId = $this->resolveCategoryId($data['category_id'] ?? null, $data['new_category'] ?? null);
 
         $units = collect($data['units'])
@@ -222,7 +218,7 @@ class GudangController extends Controller
         }
         $defaultUnit = $units[$defaultIndex];
 
-        $product = DB::transaction(function () use ($request, $data, $units, $defaultUnit, $defaultIndex, $stockValue, $isStockUnlimited, $categoryId) {
+        $product = DB::transaction(function () use ($request, $data, $units, $defaultUnit, $defaultIndex, $stockValue, $categoryId) {
             $productAttributes = [
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
@@ -230,7 +226,7 @@ class GudangController extends Controller
                 'unit' => $defaultUnit['name'],
                 'price' => $defaultUnit['price'],
                 'stock' => $stockValue,
-                'is_stock_unlimited' => $isStockUnlimited,
+                'is_stock_unlimited' => false,
                 'is_active' => $request->boolean('is_active', true),
             ];
 
@@ -250,7 +246,7 @@ class GudangController extends Controller
                 })->all()
             );
 
-            if (! $product->is_stock_unlimited && $product->stock > 0) {
+            if ($product->stock > 0) {
                 StockMovement::create([
                     'product_id' => $product->id,
                     'user_id' => Auth::id(),
@@ -334,7 +330,7 @@ class GudangController extends Controller
                 'max:20',
                 function ($attribute, $value, $fail) {
                     if (! $this->isValidStockInput($value)) {
-                        $fail('Stok harus berupa angka atau "-" bila stok tidak dapat dihitung.');
+                        $fail('Stok harus berupa angka.');
                     }
                 },
             ],
@@ -345,7 +341,7 @@ class GudangController extends Controller
             'default_unit' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        [$stockValue, $isStockUnlimited] = $this->normalizeStockInput($data['stock']);
+        [$stockValue] = $this->normalizeStockInput($data['stock']);
         $redirectTo = $this->normalizeRedirectUrl($request->input('redirect_to'));
 
         $units = collect($data['units'])
@@ -380,7 +376,7 @@ class GudangController extends Controller
         $wasUnlimited = $product->is_stock_unlimited;
         $categoryId = $this->resolveCategoryId($data['category_id'] ?? null, $data['new_category'] ?? null);
 
-        DB::transaction(function () use ($product, $request, $data, $units, $defaultUnit, $defaultIndex, $stockValue, $isStockUnlimited, $categoryId) {
+        DB::transaction(function () use ($product, $request, $data, $units, $defaultUnit, $defaultIndex, $stockValue, $categoryId) {
             $updatePayload = [
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
@@ -388,7 +384,7 @@ class GudangController extends Controller
                 'unit' => $defaultUnit['name'],
                 'price' => $defaultUnit['price'],
                 'stock' => $stockValue,
-                'is_stock_unlimited' => $isStockUnlimited,
+                'is_stock_unlimited' => false,
                 'is_active' => $request->boolean('is_active', true),
             ];
 
@@ -406,7 +402,7 @@ class GudangController extends Controller
             );
         });
 
-        if (! $wasUnlimited && ! $product->is_stock_unlimited) {
+        if (! $wasUnlimited) {
             $difference = $product->stock - $originalStock;
 
             if ($difference !== 0) {
@@ -423,7 +419,7 @@ class GudangController extends Controller
                         : 'Penyesuaian stok (penurunan) saat edit produk',
                 ]);
             }
-        } elseif ($wasUnlimited && ! $product->is_stock_unlimited && $product->stock > 0) {
+        } elseif ($wasUnlimited && $product->stock > 0) {
             StockMovement::create([
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),
@@ -488,29 +484,15 @@ class GudangController extends Controller
 
     private function isValidStockInput($value): bool
     {
-        if (! is_string($value)) {
-            return false;
-        }
-
-        $trimmed = trim($value);
-
-        if ($trimmed === '-') {
-            return true;
-        }
-
-        return $trimmed !== '' && ctype_digit($trimmed);
+        return is_string($value) && $value !== '' && ctype_digit(trim($value));
     }
 
     /**
-     * @return array{0:int,1:bool}
+     * @return array{0:int}
      */
     private function normalizeStockInput(string $value): array
     {
-        $trimmed = trim($value);
-        $isUnlimited = $trimmed === '-';
-        $stock = $isUnlimited ? 0 : (int) $trimmed;
-
-        return [$stock, $isUnlimited];
+        return [(int) trim($value)];
     }
 
     public function stockMovements(Request $request)
@@ -552,9 +534,7 @@ class GudangController extends Controller
                 ->firstOrFail();
 
             if ($product->is_stock_unlimited) {
-                throw ValidationException::withMessages([
-                    'product_id' => 'Produk ini ditandai stok tidak terhitung. Ubah stok ke angka terlebih dahulu sebelum melakukan penyesuaian.',
-                ]);
+                $product->update(['is_stock_unlimited' => false]);
             }
 
             if ($data['direction'] === 'decrease' && $product->stock < $data['quantity']) {
@@ -609,15 +589,13 @@ class GudangController extends Controller
         $products = $query->paginate(25)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
-        $limitedProducts = $productsForTotals->filter(fn ($product) => ! $product->is_stock_unlimited);
-        $totalValue = $limitedProducts->sum(fn ($product) => $product->stock * $product->price);
-        $totalStock = $limitedProducts->sum('stock');
+        $totalValue = $productsForTotals->sum(fn ($product) => $product->stock * $product->price);
+        $totalStock = $productsForTotals->sum('stock');
 
         $pageProducts = $products->getCollection();
-        $pageLimited = $pageProducts->filter(fn ($product) => ! $product->is_stock_unlimited);
         $pageItems = $pageProducts->count();
-        $pageStock = $pageLimited->sum('stock');
-        $pageValue = $pageLimited->sum(fn ($product) => $product->stock * $product->price);
+        $pageStock = $pageProducts->sum('stock');
+        $pageValue = $pageProducts->sum(fn ($product) => $product->stock * $product->price);
         $pageActive = $pageProducts->where('is_active', true)->count();
         $pageInactive = $pageProducts->where('is_active', false)->count();
 

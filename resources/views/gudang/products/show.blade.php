@@ -70,24 +70,26 @@
                 @if ($product->units->isNotEmpty())
                     <div style="margin: 12px 0;">
                         <strong>Satuan & Harga:</strong>
-                        <table class="data-table" style="margin-top: 10px;">
-                            <thead>
-                                <tr>
-                                    <th>Satuan</th>
-                                    <th>Harga</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($product->units as $unit)
+                        <div class="table-scroll">
+                            <table class="data-table" style="margin-top: 10px;">
+                                <thead>
                                     <tr>
-                                        <td>{{ $unit->name }}</td>
-                                        <td>Rp{{ number_format($unit->price, 0, ',', '.') }}</td>
-                                        <td>{{ $unit->is_default ? 'Default' : '-' }}</td>
+                                        <th>Satuan</th>
+                                        <th>Harga</th>
+                                        <th>Status</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($product->units as $unit)
+                                        <tr>
+                                            <td>{{ $unit->name }}</td>
+                                            <td>Rp{{ number_format($unit->price, 0, ',', '.') }}</td>
+                                            <td>{{ $unit->is_default ? 'Default' : '-' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 @else
                     <p><strong>Satuan:</strong> {{ $product->unit }}</p>
@@ -95,7 +97,7 @@
                 @endif
                 <p>
                     <strong>Stok Saat Ini:</strong>
-                    {{ $product->is_stock_unlimited ? 'Tidak terbatas' : $product->stock }}
+                    {{ $product->display_stock }}
                 </p>
                 @if ($product->description)
                     <p style="margin-top: 12px;"><strong>Deskripsi:</strong><br>{{ $product->description }}</p>
@@ -140,26 +142,28 @@
             @if ($recentMovements->isEmpty())
                 <p class="muted">Belum ada catatan pergerakan stok.</p>
             @else
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Jenis</th>
-                            <th>Jumlah</th>
-                            <th>Catatan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($recentMovements as $movement)
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td>{{ \Illuminate\Support\Carbon::parse($movement->created_at)->format('d/m/Y H:i') }}</td>
-                                <td>{{ ucfirst($movement->type) }}</td>
-                                <td>{{ $movement->quantity }}</td>
-                                <td>{{ $movement->notes }}</td>
+                                <th>Tanggal</th>
+                                <th>Jenis</th>
+                                <th>Jumlah</th>
+                                <th>Catatan</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($recentMovements as $movement)
+                                <tr>
+                                    <td>{{ \Illuminate\Support\Carbon::parse($movement->created_at)->format('d/m/Y H:i') }}</td>
+                                    <td>{{ ucfirst($movement->type) }}</td>
+                                    <td>{{ $movement->quantity }}</td>
+                                    <td>{{ $movement->notes }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @endif
         </div>
     </div>

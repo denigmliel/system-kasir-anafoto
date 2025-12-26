@@ -7,10 +7,10 @@
         .form-section {
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 14px;
         }
         .form-group--narrow {
-            max-width: 420px;
+            max-width: 320px;
         }
 
         .form-group--narrow .form-control {
@@ -19,14 +19,14 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px 28px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px 14px;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             color: #182230;
         }
 
@@ -34,10 +34,10 @@
         .form-select,
         .form-textarea {
             width: 100%;
-            padding: 10px 12px;
-            border-radius: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
             border: 1px solid #d0d5dd;
-            font-size: 14px;
+            font-size: 12.5px;
             background-color: #fff;
         }
 
@@ -61,11 +61,11 @@
 
         .scroll-select__trigger {
             width: 100%;
-            padding: 10px 12px;
-            border-radius: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
             border: 1px solid #d0d5dd;
             background-color: #fff;
-            font-size: 14px;
+            font-size: 12.5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -99,24 +99,24 @@
         }
 
         .scroll-select__icon svg {
-            width: 100%;
-            height: 100%;
+            width: 16px;
+            height: 16px;
         }
 
         .scroll-select__dropdown {
             position: absolute;
             left: 0;
             right: 0;
-            margin-top: 4px;
-            border-radius: 12px;
+            margin-top: 2px;
+            border-radius: 9px;
             border: 1px solid #d0d5dd;
             background-color: #fff;
-            box-shadow: 0 25px 40px rgba(15, 23, 42, 0.12);
-            max-height: 320px;
-            padding: 8px;
+            box-shadow: 0 14px 24px rgba(15, 23, 42, 0.1);
+            max-height: 220px;
+            padding: 5px;
             display: none;
             flex-direction: column;
-            gap: 8px;
+            gap: 5px;
         }
 
         .scroll-select.is-open .scroll-select__dropdown {
@@ -125,10 +125,10 @@
 
         .scroll-select__search-input {
             width: 100%;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            font-size: 13px;
+            font-size: 11.5px;
         }
 
         .scroll-select__search-input:focus {
@@ -140,17 +140,17 @@
         .scroll-select__options {
             flex: 1;
             overflow-y: auto;
-            padding: 4px 0;
+            padding: 0;
         }
 
         .scroll-select__option {
             display: block;
             width: 100%;
-            padding: 10px 16px;
+            padding: 8px 10px;
             text-align: left;
             background: transparent;
             border: none;
-            font-size: 14px;
+            font-size: 12.5px;
             color: #1f2937;
             cursor: pointer;
         }
@@ -173,31 +173,38 @@
         }
 
         .form-control--compact {
-            max-width: 220px;
+            max-width: 160px;
+        }
+
+        .form-code {
+            display: inline-block;
+            min-width: 360px;
+            max-width: 100%;
+            white-space: nowrap;
         }
 
         .form-check {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
         }
 
         .form-check input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 15px;
+            height: 15px;
         }
 
         .unit-section {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .unit-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #d0d5dd;
-            border-radius: 12px;
+            border-radius: 9px;
             overflow: hidden;
             background-color: #fff;
         }
@@ -208,19 +215,19 @@
 
         .unit-table th,
         .unit-table td {
-            padding: 10px 12px;
+            padding: 7px 9px;
             text-align: left;
             border-bottom: 1px solid #e4e7ec;
-            font-size: 14px;
+            font-size: 12.5px;
         }
         .unit-table th:first-child,
         .unit-table td:first-child {
-            padding-right: 20px;
+            padding-right: 12px;
         }
 
         .unit-table th:nth-child(2),
         .unit-table td:nth-child(2) {
-            padding-left: 12px;
+            padding-left: 9px;
         }
 
         .unit-table tbody tr:last-child td {
@@ -229,13 +236,13 @@
 
         .unit-actions {
             display: flex;
-            gap: 8px;
+            gap: 5px;
         }
 
         .unit-actions button {
             border: none;
-            padding: 6px 10px;
-            border-radius: 8px;
+            padding: 4px 7px;
+            border-radius: 7px;
             cursor: pointer;
             font-weight: 600;
         }
@@ -245,8 +252,8 @@
             background-color: #2563eb;
             color: #fff;
             border: none;
-            padding: 8px 14px;
-            border-radius: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s ease;
@@ -272,9 +279,9 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border: 1px solid #d0d5dd;
-            border-radius: 10px;
+            border-radius: 8px;
             background-color: #fff;
         }
 
@@ -293,31 +300,31 @@
             outline: none;
             background: transparent;
             flex: 1;
-            font-size: 14px;
+            font-size: 12.5px;
             padding: 0;
         }
 
         .form-footer {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 16px;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         .form-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 9px 14px;
+            border-radius: 9px;
             font-weight: 600;
-            font-size: 14px;
-            letter-spacing: 0.2px;
+            font-size: 12.5px;
+            letter-spacing: 0.12px;
             text-decoration: none;
             border: none;
             cursor: pointer;
             transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
         }
 
         .form-button--success {
@@ -461,9 +468,9 @@
     @endphp
 
             <div class="form-section">
-                <div class="form-group form-group--narrow">
+                <div class="form-group">
                     <label class="muted" style="font-weight: 600;">Kode Produk</label>
-                    <div style="padding: 10px 12px; border-radius: 10px; border: 1px solid #d0d5dd; background: #f8fafc;">
+                    <div class="form-code" style="padding: 10px 12px; border-radius: 10px; border: 1px solid #d0d5dd; background: #f8fafc;">
                         {{ $product->code ?? 'Kode akan dibuat otomatis saat produk disimpan.' }}
                     </div>
                 </div>
@@ -534,79 +541,81 @@
                         </p>
                     </div>
 
-                    <table class="unit-table" id="unit-table" data-available-units='@json($allowedUnits)'>
-                        <thead>
-                            <tr>
-                                <th style="width: 34%;">Nama Satuan</th>
-                                <th style="width: 32%;">Harga Jual</th>
-                                <th style="width: 20%;">Jadikan Default</th>
-                                <th style="width: 20%;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($unitRows as $index => $unit)
-                                <tr class="unit-row">
-                                    <td>
-                                        @php($selectedUnit = old("units.$index.name", $unit['name']))
-                                        <select
-                                            name="units[{{ $index }}][name]"
-                                            class="form-select"
-                                            required
-                                            data-field="name"
-                                        >
-                                            <option value="" disabled {{ $selectedUnit === '' ? 'selected' : '' }}>
-                                                Pilih satuan
-                                            </option>
-                                            @foreach ($allowedUnits as $option)
-                                                <option value="{{ $option }}" {{ $selectedUnit === $option ? 'selected' : '' }}>
-                                                    {{ $option }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error("units.$index.name")
-                                            <div class="input-error">{{ $message }}</div>
-                                        @enderror
-                                    </td>
-                                    <td>
-                                        <div class="currency-input">
-                                            <span class="currency-prefix">Rp</span>
-                                            <input
-                                                type="number"
-                                                name="units[{{ $index }}][price]"
-                                                value="{{ old("units.$index.price", $unit['price']) }}"
-                                                min="0"
-                                                step="1"
-                                                required
-                                                data-field="price"
-                                            >
-                                        </div>
-                                        @error("units.$index.price")
-                                            <div class="input-error">{{ $message }}</div>
-                                        @enderror
-                                    </td>
-                                    <td>
-                                        <label class="unit-default-radio">
-                                            <input
-                                                type="radio"
-                                                name="default_unit"
-                                                value="{{ $index }}"
-                                                {{ $defaultIndex === $index ? 'checked' : '' }}
-                                                data-field="default"
-                                            >
-                                            <span>Default</span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <div class="unit-actions">
-                                            <button type="button" class="unit-remove-button" data-action="remove-unit">
-                                                Hapus
-                                            </button>
-                                        </div>
-                                    </td>
+                    <div class="table-scroll">
+                        <table class="unit-table" id="unit-table" data-available-units='@json($allowedUnits)'>
+                            <thead>
+                                <tr>
+                                    <th style="width: 34%;">Nama Satuan</th>
+                                    <th style="width: 32%;">Harga Jual</th>
+                                    <th style="width: 20%;">Jadikan Default</th>
+                                    <th style="width: 20%;"></th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($unitRows as $index => $unit)
+                                    <tr class="unit-row">
+                                        <td>
+                                            @php($selectedUnit = old("units.$index.name", $unit['name']))
+                                            <select
+                                                name="units[{{ $index }}][name]"
+                                                class="form-select"
+                                                required
+                                                data-field="name"
+                                            >
+                                                <option value="" disabled {{ $selectedUnit === '' ? 'selected' : '' }}>
+                                                    Pilih satuan
+                                                </option>
+                                                @foreach ($allowedUnits as $option)
+                                                    <option value="{{ $option }}" {{ $selectedUnit === $option ? 'selected' : '' }}>
+                                                        {{ $option }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error("units.$index.name")
+                                                <div class="input-error">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            <div class="currency-input">
+                                                <span class="currency-prefix">Rp</span>
+                                                <input
+                                                    type="number"
+                                                    name="units[{{ $index }}][price]"
+                                                    value="{{ old("units.$index.price", $unit['price']) }}"
+                                                    min="0"
+                                                    step="1"
+                                                    required
+                                                    data-field="price"
+                                                >
+                                            </div>
+                                            @error("units.$index.price")
+                                                <div class="input-error">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            <label class="unit-default-radio">
+                                                <input
+                                                    type="radio"
+                                                    name="default_unit"
+                                                    value="{{ $index }}"
+                                                    {{ $defaultIndex === $index ? 'checked' : '' }}
+                                                    data-field="default"
+                                                >
+                                                <span>Default</span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <div class="unit-actions">
+                                                <button type="button" class="unit-remove-button" data-action="remove-unit">
+                                                    Hapus
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
 
                     <button type="button" class="unit-add-button" id="add-unit-row">
                         + Tambah Satuan
@@ -628,8 +637,8 @@
                             value="{{ old('stock', $product->display_stock) }}"
                             required
                             inputmode="numeric"
-                            pattern="^(-|\d+)$"
-                            title="Masukkan angka atau tanda '-' untuk stok tidak terbatas"
+                            pattern="^[0-9]+$"
+                            title="Masukkan jumlah stok (angka)"
                         >
                         @error('stock')
                             <div class="input-error">{{ $message }}</div>

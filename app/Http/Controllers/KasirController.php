@@ -23,10 +23,12 @@ class KasirController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
+        $now = now();
+        $todayDate = $now->copy()->startOfDay();
 
         $todayTransactions = Transaction::with(['details'])
             ->where('user_id', $user->id)
-            ->whereDate('transaction_date', today())
+            ->whereDate('transaction_date', $todayDate)
             ->orderByDesc('transaction_date')
             ->get();
 
@@ -52,7 +54,7 @@ class KasirController extends Controller
                 DB::raw('COUNT(*) as transaction_count')
             )
             ->where('user_id', $user->id)
-            ->whereBetween('transaction_date', [now()->startOfMonth(), now()->endOfMonth()])
+            ->whereBetween('transaction_date', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
             ->groupBy(DB::raw('DATE(transaction_date)'))
             ->orderBy('date')
             ->get();
@@ -73,19 +75,111 @@ class KasirController extends Controller
         $todayItemsSold = $todayTransactions
             ->flatMap(fn ($transaction) => $transaction->details)
             ->sum('quantity');
+        $todayTransactionCount = $todayTransactions->count();
+        $todayAvgOrder = $todayTransactionCount > 0
+            ? $todaySalesTotal / $todayTransactionCount
+            : 0;
+
+        $paymentLabels = [
+            'cash' => 'Tunai',
+            'qris' => 'QRIS',
+            'transfer' => 'Transfer',
+        ];
+
+        $paymentBreakdown = $todayTransactions
+            ->groupBy('payment_method')
+            ->map(function ($group, $method) use ($paymentLabels) {
+                return [
+                    'method' => $method,
+                    'label' => $paymentLabels[$method] ?? ucfirst($method),
+                    'count' => $group->count(),
+                    'total' => $group->sum('total_amount'),
+                ];
+            })
+            ->values();
+
+        $weekStart = $now->copy()->subDays(6)->startOfDay();
+        $weekEnd = $now->copy()->endOfDay();
+
+        $weeklyRows = Transaction::select(
+                DB::raw('DATE(transaction_date) as date'),
+                DB::raw('SUM(total_amount) as total'),
+                DB::raw('COUNT(*) as transaction_count')
+            )
+            ->where('user_id', $user->id)
+            ->whereBetween('transaction_date', [$weekStart, $weekEnd])
+            ->groupBy(DB::raw('DATE(transaction_date)'))
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $weeklySalesLabels = [];
+        $weeklySalesTotals = [];
+        $weeklySalesTransactionCounts = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = $now->copy()->subDays($i)->format('Y-m-d');
+            $label = Carbon::parse($date)->translatedFormat('d M');
+            $totals = $weeklyRows->get($date);
+
+            $weeklySalesLabels[] = $label;
+            $weeklySalesTotals[] = (float) ($totals->total ?? 0);
+            $weeklySalesTransactionCounts[] = (int) ($totals->transaction_count ?? 0);
+        }
+
+        $weeklyTotal = array_sum($weeklySalesTotals);
+
+        $previousWeekStart = $now->copy()->subDays(13)->startOfDay();
+        $previousWeekEnd = $now->copy()->subDays(7)->endOfDay();
+        $previousWeekTotal = (float) Transaction::where('user_id', $user->id)
+            ->whereBetween('transaction_date', [$previousWeekStart, $previousWeekEnd])
+            ->sum('total_amount');
+
+        $weeklyChange = $weeklyTotal - $previousWeekTotal;
+        $weeklyTrendDirection = $weeklyChange > 0 ? 'up' : ($weeklyChange < 0 ? 'down' : 'flat');
+        $weeklyChangePct = $previousWeekTotal > 0
+            ? ($weeklyChange / $previousWeekTotal) * 100
+            : null;
+
+        $topProductsWeek = TransactionDetail::select(
+                'product_name',
+                DB::raw('SUM(quantity) as total_quantity'),
+                DB::raw('SUM(subtotal) as gross_total')
+            )
+            ->whereHas('transaction', function ($query) use ($user, $weekStart, $weekEnd) {
+                $query->where('user_id', $user->id)
+                    ->whereBetween('transaction_date', [$weekStart, $weekEnd]);
+            })
+            ->groupBy('product_name')
+            ->orderByDesc('total_quantity')
+            ->limit(5)
+            ->get();
 
         return view('kasir.dashboard', [
-            'todayDateLabel' => Carbon::now()->translatedFormat('d M Y'),
+            'todayDateLabel' => $now->translatedFormat('d M Y'),
             'todaySalesTotal' => $todaySalesTotal,
             'todayTransactions' => $todayTransactions,
-            'todayTransactionCount' => $todayTransactions->count(),
+            'todayTransactionCount' => $todayTransactionCount,
             'todayItemsSold' => $todayItemsSold,
+            'todayAvgOrder' => $todayAvgOrder,
+            'paymentBreakdown' => $paymentBreakdown,
             'recentTransactions' => $recentTransactions,
             'topProducts' => $topProducts,
+            'topProductsWeek' => $topProductsWeek,
             'monthlySales' => $monthlySales,
             'monthlySalesLabels' => $monthlySalesLabels,
             'monthlySalesTotals' => $monthlySalesTotals,
             'monthlySalesTransactionCounts' => $monthlySalesTransactionCounts,
+            'weeklySalesLabels' => $weeklySalesLabels,
+            'weeklySalesTotals' => $weeklySalesTotals,
+            'weeklySalesTransactionCounts' => $weeklySalesTransactionCounts,
+            'weeklyTrend' => [
+                'current_total' => $weeklyTotal,
+                'previous_total' => $previousWeekTotal,
+                'change' => $weeklyChange,
+                'change_pct' => $weeklyChangePct,
+                'trend' => $weeklyTrendDirection,
+            ],
         ]);
     }
 
@@ -258,17 +352,15 @@ class KasirController extends Controller
 
                 $stockDeduction = $this->calculateStockDeduction($product, $unit, $item['quantity']);
 
-                if (! $product->is_stock_unlimited) {
-                    $reservedTotal = ($reservedStock[$product->id] ?? 0) + $stockDeduction;
+                $reservedTotal = ($reservedStock[$product->id] ?? 0) + $stockDeduction;
 
-                    if ($reservedTotal > $product->stock) {
-                        throw ValidationException::withMessages([
-                            "items.{$index}.quantity" => "Stok {$product->name} tidak mencukupi.",
-                        ]);
-                    }
-
-                    $reservedStock[$product->id] = $reservedTotal;
+                if ($reservedTotal > $product->stock) {
+                    throw ValidationException::withMessages([
+                        "items.{$index}.quantity" => "Stok {$product->name} tidak mencukupi.",
+                    ]);
                 }
+
+                $reservedStock[$product->id] = $reservedTotal;
 
                 $price = (float) $unit->price;
                 $lineSubtotal = max($price * $item['quantity'], 0);
@@ -302,7 +394,7 @@ class KasirController extends Controller
                 foreach ($movements as $movement) {
                     $product = $products->get($movement->product_id);
 
-                    if ($product && ! $product->is_stock_unlimited && $movement->type === 'out') {
+                    if ($product && $movement->type === 'out') {
                         $product->increment('stock', $movement->quantity);
                     }
 
@@ -357,7 +449,7 @@ class KasirController extends Controller
 
                 $product = $products->get($detailData['product_id']);
 
-                if (! $product->is_stock_unlimited && $stockDeduction > 0) {
+                if ($stockDeduction > 0) {
                     $product->decrement('stock', $stockDeduction);
                 }
 
@@ -388,10 +480,6 @@ class KasirController extends Controller
 
     protected function calculateStockDeduction(Product $product, ProductUnit $unit, int $quantity): int
     {
-        if ($product->is_stock_unlimited) {
-            return 0;
-        }
-
         return max(0, $quantity);
     }
 

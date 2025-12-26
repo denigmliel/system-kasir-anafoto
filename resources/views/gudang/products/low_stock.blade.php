@@ -8,36 +8,36 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 24px;
+            margin-bottom: 10px;
         }
 
         .low-stock-filter {
             display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            padding: 20px;
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            padding: 10px;
             background-color: #ffffff;
-            border-radius: 16px;
+            border-radius: 9px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
-            margin-bottom: 24px;
+            box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
+            margin-bottom: 10px;
         }
 
         .low-stock-filter label {
-            font-size: 13px;
+            font-size: 10.5px;
             font-weight: 600;
             color: #475467;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
             display: inline-block;
         }
 
         .low-stock-filter input,
         .low-stock-filter select {
             width: 100%;
-            padding: 11px 14px;
-            border-radius: 12px;
+            padding: 7px 9px;
+            border-radius: 8px;
             border: 1px solid #d0d5dd;
-            font-size: 14px;
+            font-size: 12px;
             color: #111827;
             background-color: #f8fafc;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -53,18 +53,18 @@
 
         .low-stock-filter__actions {
             display: flex;
-            gap: 12px;
+            gap: 7px;
             align-items: flex-end;
             flex-wrap: wrap;
         }
 
         .low-stock-filter__actions button,
         .low-stock-filter__actions a {
-            padding: 12px 18px;
-            border-radius: 12px;
+            padding: 7px 10px;
+            border-radius: 8px;
             border: none;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             text-decoration: none;
             transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -83,17 +83,43 @@
         }
 
         .low-stock-info {
-            font-size: 14px;
+            font-size: 11.5px;
             color: #475467;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 9px 11px;
+            background: #f7f9fc;
+            color: #0f172a;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 8px 11px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #1f2937;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
         }
 
         .stock-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 10px;
+            padding: 3px 7px;
             border-radius: 999px;
-            font-size: 13px;
+            font-size: 10.5px;
             font-weight: 600;
             background-color: #fee2e2;
             color: #991b1b;
@@ -107,14 +133,21 @@
         .table-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 5px;
+        }
+
+        .table-actions .chip-button {
+            padding: 5px 10px;
+            min-width: 64px;
+            font-size: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
         }
 
         nav[aria-label="Pagination Navigation"] {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 24px;
+            gap: 6px;
+            margin-top: 10px;
             align-items: flex-end;
         }
 
@@ -126,12 +159,12 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 12px;
+            gap: 6px;
         }
 
         nav[aria-label="Pagination Navigation"] p {
             margin: 0;
-            font-size: 13px;
+            font-size: 10.5px;
             color: #475467;
         }
 
@@ -141,15 +174,15 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 12px;
-            font-size: 14px;
+            padding: 5px 8px;
+            font-size: 11.5px;
             font-weight: 600;
             color: #1f2937;
             background-color: #ffffff;
             border: 1px solid #d0d5dd;
-            border-radius: 10px;
+            border-radius: 7px;
             text-decoration: none;
-            min-width: 40px;
+            min-width: 30px;
         }
 
         nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
@@ -172,10 +205,6 @@
 @section('content')
     <div class="low-stock-header">
         <h1 class="page-title">Produk Stok Menipis</h1>
-        <p class="low-stock-info">
-            Menampilkan produk dengan stok &le; {{ $threshold }}.
-            Ambang bawaan sistem adalah {{ $defaultThreshold }} pcs. Sesuaikan nilai ambang bila diperlukan.
-        </p>
     </div>
 
     <form method="GET" class="low-stock-filter">
@@ -236,53 +265,55 @@
                 </div>
             </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>#ID</th>
-                        <th>Kode</th>
-                        <th>Produk</th>
-                        <th>Kategori</th>
-                        <th style="width: 120px; text-align: center;">Stok</th>
-                        <th style="width: 120px; text-align: center;">Target/Min</th>
-                        <th>Status</th>
-                        <th style="width: 130px;"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($products as $product)
-                        @php
-                            $isOut = $product->stock <= 0;
-                            $isCritical = $product->stock > 0 && $product->stock <= $defaultThreshold;
-                        @endphp
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <td>#{{ $product->id }}</td>
-                            <td>{{ $product->code ?? '-' }}</td>
-                            <td>{{ $product->name }}</td>
-                            <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
-                            <td style="text-align: center;">
-                                @if ($isOut)
-                                    <span class="stock-badge">Stok habis</span>
-                                @elseif ($isCritical)
-                                    <span class="stock-badge stock-badge--warning">{{ $product->stock }} pcs</span>
-                                @else
-                                    {{ $product->stock }} pcs
-                                @endif
-                            </td>
-                            <td style="text-align: center;">
-                                {{ $product->min_stock !== null ? $product->min_stock . ' pcs' : '-' }}
-                            </td>
-                            <td>{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--yellow">Detail</a>
-                                    <a href="{{ route('gudang.products.edit', $product) }}" class="chip-button chip-button--blue">Restok</a>
-                                </div>
-                            </td>
+                            <th>#ID</th>
+                            <th>Kode</th>
+                            <th>Produk</th>
+                            <th>Kategori</th>
+                            <th style="width: 120px; text-align: center;">Stok</th>
+                            <th style="width: 120px; text-align: center;">Target/Min</th>
+                            <th>Status</th>
+                            <th style="width: 130px;"></th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($products as $product)
+                            @php
+                                $isOut = $product->stock <= 0;
+                                $isCritical = $product->stock > 0 && $product->stock <= $defaultThreshold;
+                            @endphp
+                            <tr>
+                                <td>#{{ $product->id }}</td>
+                                <td>{{ $product->code ?? '-' }}</td>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ optional($product->category)->name ?? 'Tanpa Kategori' }}</td>
+                                <td style="text-align: center;">
+                                    @if ($isOut)
+                                        <span class="stock-badge">Stok habis</span>
+                                    @elseif ($isCritical)
+                                        <span class="stock-badge stock-badge--warning">{{ $product->stock }} pcs</span>
+                                    @else
+                                        {{ $product->stock }} pcs
+                                    @endif
+                                </td>
+                                <td style="text-align: center;">
+                                    {{ $product->min_stock !== null ? $product->min_stock . ' pcs' : '-' }}
+                                </td>
+                                <td>{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{{ route('gudang.products.show', $product) }}" class="chip-button chip-button--yellow">Detail</a>
+                                        <a href="{{ route('gudang.products.edit', $product) }}" class="chip-button chip-button--blue">Restok</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
             <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
                 {{ $products->links() }}

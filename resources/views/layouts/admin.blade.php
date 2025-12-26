@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/svg+xml" sizes="any" href="{{ asset('favicon.svg') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/logo-rounded.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('img/logo-rounded.png') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-rounded.png') }}">
 
     <title>@yield('title', 'Panel Admin')</title>
 
@@ -20,296 +20,132 @@
         :root {
             color-scheme: light;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fb;
-            color: #172033;
-            --sidebar-width: 220px;
-            --sidebar-transition: 0.25s ease;
+            background-color: #f6f7fb;
+            color: #0f172a;
         }
 
         body {
             margin: 0;
             overflow-x: hidden;
             min-height: 100vh;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(239, 68, 68, 0.14), transparent 24%),
+                radial-gradient(circle at 82% 12%, rgba(14, 165, 233, 0.12), transparent 22%),
+                #f6f7fb;
         }
 
         .layout {
             min-height: 100vh;
             display: flex;
-            width: 100vw;
-        }
-
-        .layout.has-sidebar-open {
-            overflow: hidden;
-        }
-
-        .sidebar {
-            background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
-            color: #fff;
-            padding: 24px 18px;
-            display: flex;
             flex-direction: column;
-            gap: 32px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            overflow-y: auto;
-            width: var(--sidebar-width);
-            z-index: 1001;
-            transition: transform var(--sidebar-transition), box-shadow var(--sidebar-transition);
-        }
-
-        .brand {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            line-height: 1.05;
-            color: #fff;
-        }
-
-        .brand span {
-            display: block;
-        }
-
-        .sidebar-top {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .logout-form {
             width: 100%;
+        }
+
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(12px);
+            background: linear-gradient(90deg, rgba(255,255,255,0.92), rgba(255,255,255,0.85));
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        }
+
+        .top-nav__inner {
+            max-width: none;
             margin: 0;
-        }
-
-        .sidebar-sections {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .sidebar-section {
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 14px;
-            background-color: rgba(255, 255, 255, 0.08);
-            overflow: hidden;
-        }
-
-        .sidebar-section-single {
-            padding: 0;
-        }
-
-        .sidebar-single-link {
-            display: block;
-            padding: 12px 16px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .sidebar-single-link.active,
-        .sidebar-single-link:hover {
-            background-color: rgba(255, 255, 255, 0.24);
-            color: #fff;
-        }
-
-        .sidebar-summary {
+            padding: 10px clamp(14px, 3vw, 22px);
             display: flex;
             align-items: center;
+            gap: 12px;
             justify-content: space-between;
-            cursor: pointer;
-            padding: 12px 16px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-            list-style: none;
+            width: 100%;
         }
 
-        .sidebar-summary::-webkit-details-marker {
-            display: none;
+        .brand-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #b91c1c;
+            letter-spacing: 0.6px;
         }
 
-        .sidebar-caret {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-right: 2px solid currentColor;
-            border-bottom: 2px solid currentColor;
-            transform: rotate(45deg);
-            transition: transform 0.2s ease;
-            margin-left: 12px;
-        }
-
-        .sidebar-section[open] .sidebar-caret {
-            transform: rotate(-135deg);
-        }
-
-        .sidebar-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 0 16px 16px;
-        }
-
-        .sidebar-links a {
-            color: rgba(255, 255, 255, 0.82);
-            text-decoration: none;
-            padding: 9px 12px;
+        .brand-mark .brand-logo {
+            width: 34px;
+            height: 34px;
             border-radius: 10px;
-            font-weight: 500;
-            transition: background-color 0.2s, color 0.2s;
+            object-fit: cover;
+            box-shadow: 0 10px 20px rgba(185, 28, 28, 0.2);
+            border: 1px solid #fee2e2;
+            background: #fff;
         }
 
-        .sidebar-links a.active,
-        .sidebar-links a:hover {
-            background-color: rgba(255, 255, 255, 0.24);
-            color: #fff;
-        }
-
-        .content {
-            background-color: #f5f6fb;
-            padding: 24px clamp(18px, 3vw, 32px);
+        .top-nav__right {
             display: flex;
-            flex-direction: column;
-            width: calc(100vw - var(--sidebar-width));
-            max-width: calc(100vw - var(--sidebar-width));
-            margin-left: var(--sidebar-width);
-            box-sizing: border-box;
-            min-width: 0;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 28px;
-            gap: 16px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .user-info {
+        .chip {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-weight: 700;
+            border: 1px solid #fecdd3;
+            font-size: 13px;
+            box-shadow: 0 8px 20px rgba(185, 28, 28, 0.12);
+        }
+
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
             font-weight: 600;
-            color: #334155;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
         }
 
         .logout-button {
             border: none;
             background: linear-gradient(135deg, #f97316 0%, #dc2626 100%);
             color: #fff;
-            padding: 12px 18px;
-            border-radius: 14px;
+            padding: 10px 14px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             letter-spacing: 0.3px;
             transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-            box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+            box-shadow: 0 10px 22px rgba(220, 38, 38, 0.22);
         }
 
         .logout-button:hover {
             transform: translateY(-1px);
             filter: brightness(1.05);
-            box-shadow: 0 14px 28px rgba(220, 38, 38, 0.32);
+            box-shadow: 0 14px 28px rgba(220, 38, 38, 0.28);
         }
 
         .logout-button:active {
             transform: translateY(0);
-            box-shadow: 0 8px 18px rgba(220, 38, 38, 0.26);
+            box-shadow: 0 8px 18px rgba(220, 38, 38, 0.22);
         }
 
-        .sidebar .logout-button {
+        .content {
+            padding: 12px clamp(16px, 3vw, 28px) 18px;
+            max-width: none;
+            margin: 0;
             width: 100%;
-        }
-
-        .logout-button span {
-            pointer-events: none;
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.38);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity var(--sidebar-transition), visibility var(--sidebar-transition);
-            z-index: 1000;
-        }
-
-        .layout.has-sidebar-open .sidebar-overlay {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        .sidebar-toggle {
-            position: fixed;
-            top: 14px;
-            right: 14px;
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
-            color: #fff;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
-            cursor: pointer;
-            z-index: 1002;
-            transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
-        }
-
-        .sidebar-toggle:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.05);
-            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
-        }
-
-        .sidebar-toggle:active {
-            transform: translateY(0);
-        }
-
-        .sidebar-toggle__icon,
-        .sidebar-toggle__icon::before,
-        .sidebar-toggle__icon::after {
-            display: block;
-            width: 22px;
-            height: 2px;
-            background: currentColor;
-            border-radius: 2px;
-            position: absolute;
-            left: 0;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-            content: '';
-        }
-
-        .sidebar-toggle__icon {
-            position: relative;
-        }
-
-        .sidebar-toggle__icon::before { top: -7px; }
-        .sidebar-toggle__icon::after { top: 7px; }
-
-        .layout.has-sidebar-open .sidebar-toggle__icon {
-            background: transparent;
-        }
-        .layout.has-sidebar-open .sidebar-toggle__icon::before {
-            transform: translateY(7px) rotate(45deg);
-        }
-        .layout.has-sidebar-open .sidebar-toggle__icon::after {
-            transform: translateY(-7px) rotate(-45deg);
+            box-sizing: border-box;
         }
 
         .main-content {
@@ -346,112 +182,47 @@
 
         .card {
             background: #fff;
-            border-radius: 16px;
-            padding: 18px 20px;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+            border-radius: 10px;
+            padding: 12px 12px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
             border: 1px solid #e5e7eb;
         }
 
-        .grid {
-            display: grid;
-            gap: 20px;
+        .grid { display: grid; gap: 12px; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        .muted { color: #64748b; font-size: 13px; }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
         }
 
-        .grid-3 {
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        .table-scroll table {
+            min-width: 560px;
         }
 
-        .muted {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        @media (max-width: 1200px) {
-            :root {
-                --sidebar-width: 204px;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            :root {
-                --sidebar-width: 190px;
-            }
-
-            .sidebar {
-                padding: 20px 14px;
-                gap: 20px;
-            }
-
-            .sidebar-sections {
-                gap: 12px;
-            }
-
-            .sidebar-links {
-                padding: 0 14px 14px;
-            }
-
-            .content {
-                padding: 20px 16px;
-                width: calc(100vw - var(--sidebar-width));
-                max-width: calc(100vw - var(--sidebar-width));
-                margin-left: var(--sidebar-width);
-            }
-
-            .main-content {
-                margin: 0;
-                max-width: 100%;
+        @media (max-width: 640px) {
+            .table-scroll table {
+                min-width: 480px;
             }
         }
 
         @media (max-width: 768px) {
-            :root {
-                --sidebar-width: 178px;
-            }
+            .top-nav__inner { padding: 12px 16px; }
+            .content { padding: 18px 16px 32px; }
+            .user-pill { width: 100%; justify-content: center; }
+            .top-nav__right { width: 100%; justify-content: flex-end; }
+        }
 
-            body {
-                overflow-x: hidden;
-            }
-
-            .layout {
-                flex-direction: column;
-                width: 100%;
-                min-height: 100vh;
-                height: auto;
-            }
-
-            .sidebar {
-                width: min(82vw, 320px);
-                max-width: 340px;
-                height: 100vh;
-                max-height: 100vh;
-                padding: 18px 16px;
-                overflow-y: auto;
-                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
-                transform: translateX(-100%);
-            }
-
-            .layout.has-sidebar-open .sidebar {
-                transform: translateX(0);
-            }
-
-            .sidebar-toggle {
-                display: inline-flex;
-            }
-
-            .content {
-                margin-left: 0;
-                width: 100%;
-                max-width: 100%;
-                min-height: auto;
-                height: auto;
-                overflow: visible;
-                padding: 18px 14px 60px;
-                margin-top: 62px;
-            }
-
-            .main-content {
-                min-height: auto;
-            }
+        @media (max-width: 600px) {
+            .top-nav__inner { padding: 10px 12px; }
+            .brand-mark { font-size: 14px; gap: 8px; }
+            .brand-mark .brand-logo { width: 30px; height: 30px; }
+            .content { padding: 14px 12px 22px; }
+            .card { padding: 10px; border-radius: 9px; }
+            .grid { gap: 10px; }
         }
     </style>
 
@@ -459,18 +230,22 @@
 </head>
 <body>
     <div class="layout">
-        @include('layouts.partials.sidebar')
-
-        <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
-        <button
-            type="button"
-            class="sidebar-toggle"
-            id="sidebar-toggle"
-            aria-label="Buka menu"
-            aria-expanded="false"
-        >
-            <span class="sidebar-toggle__icon" aria-hidden="true"></span>
-        </button>
+        <header class="top-nav">
+            <div class="top-nav__inner">
+                <div class="brand-mark">
+                    <img src="{{ asset('img/logo.png') }}" alt="ANA Fotocopy" class="brand-logo">
+                    <span>Ana Fotocopy</span>
+                </div>
+                <div class="top-nav__right">
+                    <form method="POST" action="{{ route('logout') }}" class="logout-form" style="margin:0;">
+                        @csrf
+                        <button type="submit" class="logout-button">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
 
         <div class="content">
             <div class="main-content">
@@ -496,62 +271,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const layout = document.querySelector('.layout');
-            const sidebar = document.querySelector('.sidebar');
-            const toggle = document.getElementById('sidebar-toggle');
-            const overlay = document.getElementById('sidebar-overlay');
-
-            if (!layout || !sidebar || !toggle || !overlay) {
-                return;
-            }
-
-            const setExpanded = (state) => toggle.setAttribute('aria-expanded', state ? 'true' : 'false');
-
-            const closeSidebar = () => {
-                layout.classList.remove('has-sidebar-open');
-                setExpanded(false);
-            };
-
-            const openSidebar = () => {
-                layout.classList.add('has-sidebar-open');
-                setExpanded(true);
-            };
-
-            const toggleSidebar = () => {
-                if (layout.classList.contains('has-sidebar-open')) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-            };
-
-            toggle.addEventListener('click', toggleSidebar);
-            overlay.addEventListener('click', closeSidebar);
-
-            sidebar.querySelectorAll('a').forEach((link) => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        closeSidebar();
-                    }
-                });
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    closeSidebar();
-                }
-            });
-
-            window.addEventListener('keyup', (event) => {
-                if (event.key === 'Escape') {
-                    closeSidebar();
-                }
-            });
-        });
-    </script>
 
     @stack('scripts')
 </body>

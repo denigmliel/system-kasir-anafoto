@@ -1,4 +1,6 @@
 @php
+    $userRole = auth()->user()?->role;
+
     $sections = collect([
         [
             'key' => 'admin',
@@ -26,7 +28,9 @@
                 ['route' => 'gudang.reports.stock', 'label' => 'Laporan', 'pattern' => 'gudang.reports.*'],
             ],
         ],
-    ])->map(function (array $section) {
+    ])->filter(function (array $section) use ($userRole) {
+        return $userRole ? $section['key'] === $userRole : true;
+    })->map(function (array $section) {
         $isActive = collect($section['links'])
             ->contains(fn ($link) => request()->routeIs($link['pattern'] ?? $link['route']));
 

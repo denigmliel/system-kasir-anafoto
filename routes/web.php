@@ -12,12 +12,12 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [AdminDashboardController::class, 'exportRecap'])->name('dashboard.export');
 });
 
-Route::middleware('auth')->prefix('kasir')->name('kasir.')->group(function () {
+Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
     Route::get('/dashboard', [KasirController::class, 'dashboard'])->name('dashboard');
     Route::get('/pos', [KasirController::class, 'pos'])->name('pos');
     Route::post('/transaction', [KasirController::class, 'createTransaction'])->name('transaction.create');
@@ -29,7 +29,7 @@ Route::middleware('auth')->prefix('kasir')->name('kasir.')->group(function () {
     Route::get('/check-scan', [PosScannerController::class, 'check'])->name('scan.check');
 });
 
-Route::middleware('auth')->prefix('gudang')->name('gudang.')->group(function () {
+Route::middleware(['auth', 'role:gudang'])->prefix('gudang')->name('gudang.')->group(function () {
     Route::get('/dashboard', [GudangController::class, 'dashboard'])->name('dashboard');
     Route::get('/products', [GudangController::class, 'products'])->name('products.index');
     Route::get('/products/create', [GudangController::class, 'productsCreate'])->name('products.create');

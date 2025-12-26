@@ -20,9 +20,10 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'role' => 'required|in:admin,kasir,gudang',
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -35,17 +36,25 @@ class AuthController extends Controller
 
                 return back()->withErrors([
                     'email' => 'Akun Anda tidak aktif. Hubungi administrator.'
-                ])->withInput();
+                ])->withInput($request->only('email', 'role', 'remember'));
+            }
+
+            if ($user->role !== $validated['role']) {
+                Auth::logout();
+
+                return back()->withErrors([
+                    'role' => 'Role tidak sesuai dengan akun ini.'
+                ])->withInput($request->only('email', 'role', 'remember'));
             }
 
             $request->session()->regenerate();
 
-            return $this->redirectToDashboard();
+            return $this->redirectToDashboard($user);
         }
 
         return back()->withErrors([
             'email' => 'Email atau password salah.',
-        ])->withInput();
+        ])->withInput($request->only('email', 'role', 'remember'));
     }
 
     public function logout(Request $request)
@@ -57,8 +66,17 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Anda berhasil logout.');
     }
 
-    private function redirectToDashboard()
+    private function redirectToDashboard(?User $user = null)
     {
-        return redirect()->route('admin.dashboard');
+        $user = $user ?: Auth::user();
+
+        return match ($user?->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'kasir' => redirect()->route('kasir.dashboard'),
+            'gudang' => redirect()->route('gudang.dashboard'),
+            default => redirect()->route('login')->withErrors([
+                'email' => 'Role pengguna tidak dikenali.'
+            ]),
+        };
     }
 }
