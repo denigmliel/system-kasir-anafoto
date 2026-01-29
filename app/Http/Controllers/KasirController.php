@@ -63,6 +63,10 @@ class KasirController extends Controller
             ->map(fn ($summary) => Carbon::parse($summary->date)->translatedFormat('d M'))
             ->values();
 
+        $monthlySalesDates = $monthlySales
+            ->map(fn ($summary) => Carbon::parse($summary->date)->toDateString())
+            ->values();
+
         $monthlySalesTotals = $monthlySales
             ->map(fn ($summary) => (int) $summary->total)
             ->values();
@@ -168,6 +172,7 @@ class KasirController extends Controller
             'topProductsWeek' => $topProductsWeek,
             'monthlySales' => $monthlySales,
             'monthlySalesLabels' => $monthlySalesLabels,
+            'monthlySalesDates' => $monthlySalesDates,
             'monthlySalesTotals' => $monthlySalesTotals,
             'monthlySalesTransactionCounts' => $monthlySalesTransactionCounts,
             'weeklySalesLabels' => $weeklySalesLabels,

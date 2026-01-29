@@ -122,7 +122,7 @@
         }
 
         .scrollable-table {
-            max-height: 170px;
+            max-height: 220px;
             overflow-y: auto;
             margin-top: 14px;
         }
@@ -136,6 +136,10 @@
 
         .scrollable-table table {
             margin: 0;
+        }
+
+        #monthly-sales-chart {
+            cursor: pointer;
         }
 
         .section-grid {
@@ -388,7 +392,8 @@
                     <div style="position: relative; height: 160px;">
                         <canvas id="monthly-sales-chart"></canvas>
                     </div>
-                    <div class="table-scroll">
+                    <p class="mini-label" style="margin: 6px 0 0;">Klik diagram untuk melihat transaksi pada tanggal tersebut.</p>
+                    <div class="table-scroll scrollable-table">
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -556,8 +561,10 @@
 
             const monthlyCanvas = document.getElementById('monthly-sales-chart');
             const monthlyLabels = @json($monthlySalesLabels);
+            const monthlyDates = @json($monthlySalesDates);
             const monthlyTotals = @json($monthlySalesTotals);
             const monthlyCounts = @json($monthlySalesTransactionCounts);
+            const historyUrl = @json(route('kasir.transaction.history'));
 
             if (monthlyCanvas && monthlyLabels.length) {
                 const ctx = monthlyCanvas.getContext('2d');
@@ -569,7 +576,7 @@
                 const maxValue = monthlyTotals.length ? Math.max(...monthlyTotals) : 0;
                 const suggestedMax = Math.max(100000, Math.ceil(maxValue / 100000) * 100000);
 
-                new Chart(monthlyCanvas, {
+                const monthlyChart = new Chart(monthlyCanvas, {
                     type: 'bar',
                     data: {
                         labels: monthlyLabels,
@@ -669,6 +676,30 @@
                             },
                         },
                     },
+                });
+
+                monthlyCanvas.addEventListener('click', (event) => {
+                    const points = monthlyChart.getElementsAtEventForMode(
+                        event,
+                        'nearest',
+                        { intersect: true },
+                        true
+                    );
+
+                    if (!points.length) {
+                        return;
+                    }
+
+                    const index = points[0].index;
+                    const date = monthlyDates[index];
+
+                    if (!date) {
+                        return;
+                    }
+
+                    const url = new URL(historyUrl, window.location.origin);
+                    url.searchParams.set('date', date);
+                    window.location.href = url.toString();
                 });
             }
         });
