@@ -190,6 +190,80 @@
             background: #fef2f2;
             color: #b91c1c;
         }
+
+        .pagination-wrap {
+            padding: 14px 18px;
+            border-top: 1px solid #e2e8f0;
+            background: #fff;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] > :first-child {
+            display: none;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] > :last-child {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] > :last-child > :last-child {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] .relative.inline-flex {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #d0d5dd;
+            background: #fff;
+            color: #475467;
+            text-decoration: none;
+            min-width: 32px;
+            font-weight: 600;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: #fff;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .pagination-wrap nav[aria-label="Pagination Navigation"] p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        @media (max-width: 640px) {
+            .pagination-wrap nav[aria-label="Pagination Navigation"] > :first-child {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .pagination-wrap nav[aria-label="Pagination Navigation"] > :last-child {
+                display: none;
+            }
+        }
     </style>
 @endpush
 
@@ -283,7 +357,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div style="padding: 16px 18px;">
+                <div class="pagination-wrap">
                     {{ $transactions->links() }}
                 </div>
             @endif

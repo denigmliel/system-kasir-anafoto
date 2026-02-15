@@ -45,10 +45,40 @@
             box-shadow: 0 14px 28px rgba(185, 28, 28, 0.28);
         }
 
-        .report-button--ghost {
-            background: #f1f5f9;
-            color: #0f172a;
-            border: 1px solid #e2e8f0;
+        .report-button--blue {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
+        }
+
+        .report-button--blue:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.28);
+        }
+
+        .report-button--green {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(22, 163, 74, 0.24);
+        }
+
+        .report-button--green:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(22, 163, 74, 0.28);
+        }
+
+        .report-button--yellow {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1f2937;
+            box-shadow: 0 10px 22px rgba(245, 158, 11, 0.22);
+        }
+
+        .report-button--yellow:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(245, 158, 11, 0.28);
         }
 
         .report-card {
@@ -78,8 +108,9 @@
             </p>
         </div>
         <div class="report-actions">
-            <a href="{{ route('admin.reports.sales') }}" class="report-button report-button--primary">Laporan Penjualan</a>
-            <a href="{{ route('admin.reports.stock') }}" class="report-button report-button--ghost">Laporan Persediaan</a>
+            <a href="{{ route('admin.dashboard') }}" class="report-button report-button--blue">Dashboard Admin</a>
+            <a href="{{ route('admin.reports.sales') }}" class="report-button report-button--green">Laporan Penjualan</a>
+            <a href="{{ route('admin.reports.stock') }}" class="report-button report-button--yellow">Laporan Persediaan</a>
         </div>
     </div>
 
