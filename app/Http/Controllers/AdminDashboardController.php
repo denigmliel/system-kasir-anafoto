@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
@@ -110,6 +111,52 @@ class AdminDashboardController extends Controller
         $filename = "transaksi-{$rangeLabel}-{$timestamp}.xlsx";
 
         return Excel::download(new TransactionDetailExport($start, $end, $rangeLabel), $filename);
+    }
+
+    public function lowStock(Request $request)
+    {
+        $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'threshold' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $threshold = $request->filled('threshold')
+            ? max(0, (int) $request->input('threshold'))
+            : self::LOW_STOCK_THRESHOLD;
+
+        $query = Product::with('category')
+            ->where('stock', '<=', $threshold)
+            ->orderBy('stock')
+            ->orderBy('name');
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $normalized = ltrim($search, '#');
+
+            $query->where(function ($inner) use ($search, $normalized) {
+                $inner->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('code', 'like', '%' . $search . '%');
+
+                if ($normalized !== '' && ctype_digit($normalized)) {
+                    $inner->orWhere('id', (int) $normalized);
+                }
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        $products = $query->paginate(20)->withQueryString();
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.low_stock', [
+            'products' => $products,
+            'categories' => $categories,
+            'threshold' => $threshold,
+            'defaultThreshold' => self::LOW_STOCK_THRESHOLD,
+        ]);
     }
 
     private function resolveRecapRange(?string $range): string

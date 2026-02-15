@@ -578,7 +578,7 @@
                 <div>Ada {{ number_format($metrics['lowStockCount']) }} produk dengan stok &le; {{ $lowStockThreshold }}. Segera lakukan restock.</div>
             </div>
             <div class="alert-actions">
-                <a href="{{ route('gudang.products.low_stock') }}" class="btn-link">Lihat daftar</a>
+                <a href="{{ route('admin.low_stock') }}" class="btn-link">Lihat daftar</a>
             </div>
         </div>
     @endif
@@ -804,6 +804,17 @@
                     @endforeach
                 </div>
             @endif
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <h2 style="margin: 0; font-size: 15px;">Laporan Sistem</h2>
+                <span class="tag">Rekap</span>
+            </div>
+            <p class="muted" style="margin: 8px 0 12px;">
+                Akses ringkasan penjualan, daftar transaksi, serta laporan persediaan untuk memantau stok dan kebutuhan restock.
+            </p>
+            <a href="{{ route('admin.reports.index') }}" class="link-button">Buka Laporan</a>
         </div>
     </div>
 
