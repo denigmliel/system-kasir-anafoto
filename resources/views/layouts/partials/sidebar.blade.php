@@ -7,6 +7,7 @@
             'label' => 'Dashboard Admin',
             'links' => [
                 ['route' => 'admin.dashboard', 'label' => 'Dashboard', 'pattern' => 'admin.dashboard'],
+                ['route' => 'admin.reports.stock_correlation', 'label' => 'Korelasi Stok & Pembelian', 'pattern' => 'admin.reports.stock_correlation'],
             ],
         ],
         [
@@ -25,7 +26,7 @@
                 ['route' => 'gudang.dashboard', 'label' => 'Dashboard', 'pattern' => 'gudang.dashboard'],
                 ['route' => 'gudang.products.index', 'label' => 'Produk', 'pattern' => 'gudang.products.*'],
                 ['route' => 'gudang.stock.movements', 'label' => 'Pergerakan Stok', 'pattern' => 'gudang.stock.*'],
-                ['route' => 'gudang.reports.stock', 'label' => 'Laporan', 'pattern' => 'gudang.reports.*'],
+                ['route' => 'gudang.reports.stock', 'label' => 'Laporan Stok', 'pattern' => 'gudang.reports.stock'],
             ],
         ],
     ])->filter(function (array $section) use ($userRole) {

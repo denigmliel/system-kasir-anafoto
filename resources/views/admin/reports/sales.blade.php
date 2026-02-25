@@ -274,7 +274,7 @@
                 <h1 class="page-title">Laporan Penjualan</h1>
                 <p class="meta">Periode: {{ $rangeLabel }}</p>
             </div>
-            <a href="{{ route('admin.reports.index') }}" class="report-link">Kembali ke Laporan</a>
+            <a href="{{ route('admin.dashboard') }}" class="report-link">Dashboard Admin</a>
         </div>
 
         <div class="filters-card">

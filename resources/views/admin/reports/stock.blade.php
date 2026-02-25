@@ -351,7 +351,7 @@
             <div>
                 <h1 class="page-title">Laporan Persediaan</h1>
             </div>
-            <a href="{{ route('admin.reports.index') }}" class="report-link">Kembali ke Laporan</a>
+            <a href="{{ route('admin.dashboard') }}" class="report-link">Dashboard Admin</a>
         </div>
 
         <div class="muted" style="margin-top: -4px;">

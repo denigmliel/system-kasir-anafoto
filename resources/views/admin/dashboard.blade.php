@@ -393,6 +393,46 @@
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.07);
         }
 
+        .report-action-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .report-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.2px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+            transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+        }
+
+        .report-pill:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+        }
+
+        .report-pill--green {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .report-pill--amber {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #1f2937;
+        }
+
+        .report-pill--red {
+            background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+        }
+
         .recap-combo {
             position: relative;
             min-width: 170px;
@@ -814,7 +854,11 @@
             <p class="muted" style="margin: 8px 0 12px;">
                 Akses ringkasan penjualan, daftar transaksi, serta laporan persediaan untuk memantau stok dan kebutuhan restock.
             </p>
-            <a href="{{ route('admin.reports.index') }}" class="link-button">Buka Laporan</a>
+            <div class="report-action-row">
+                <a href="{{ route('admin.reports.sales') }}" class="report-pill report-pill--green">Laporan Penjualan</a>
+                <a href="{{ route('admin.reports.stock') }}" class="report-pill report-pill--amber">Laporan Persediaan</a>
+                <a href="{{ route('admin.reports.stock_correlation') }}" class="report-pill report-pill--red">Korelasi Stok</a>
+            </div>
         </div>
     </div>
 

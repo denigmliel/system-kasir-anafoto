@@ -17,9 +17,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/export', [AdminDashboardController::class, 'exportRecap'])->name('dashboard.export');
     Route::get('/low-stock', [AdminDashboardController::class, 'lowStock'])->name('low_stock');
-    Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/sales', [AdminReportController::class, 'sales'])->name('reports.sales');
     Route::get('/reports/stock', [AdminReportController::class, 'stock'])->name('reports.stock');
+    Route::get('/reports/stock-correlation', [AdminReportController::class, 'stockCorrelation'])->name('reports.stock_correlation');
 });
 
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
