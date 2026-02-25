@@ -164,6 +164,7 @@ class AdminReportController extends Controller
             'end_date' => ['nullable', 'date'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'status' => ['nullable', 'in:all,active,inactive'],
+            'sort' => ['nullable', 'in:priority,purchase_desc,purchase_asc,ratio_desc,ratio_asc,gap_desc,gap_asc,stock_desc,stock_asc,last_purchase_desc,last_purchase_asc'],
         ]);
 
         $start = $request->filled('start_date')
@@ -178,7 +179,7 @@ class AdminReportController extends Controller
             [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
         }
 
-        $query = Product::with('category')->orderBy('name');
+        $query = Product::with('category');
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->input('category_id'));
@@ -188,33 +189,114 @@ class AdminReportController extends Controller
             $query->where('is_active', $request->input('status') === 'active');
         }
 
-        $productsForTotals = (clone $query)->get();
-        $products = $query->paginate(25)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
-        $productIds = $productsForTotals->pluck('id')->all();
-        $purchaseRows = collect();
+        $purchaseAgg = TransactionDetail::select(
+                'transaction_details.product_id',
+                DB::raw('SUM(transaction_details.quantity) as purchase_qty'),
+                DB::raw('MAX(transactions.transaction_date) as last_purchase')
+            )
+            ->join('transactions', 'transactions.id', '=', 'transaction_details.transaction_id')
+            ->whereBetween('transactions.transaction_date', [$start, $end])
+            ->groupBy('transaction_details.product_id');
 
-        if (! empty($productIds)) {
-            $purchaseRows = TransactionDetail::select(
-                    'transaction_details.product_id',
-                    DB::raw('SUM(transaction_details.quantity) as total_qty'),
-                    DB::raw('MAX(transactions.transaction_date) as last_purchase')
-                )
-                ->join('transactions', 'transactions.id', '=', 'transaction_details.transaction_id')
-                ->whereBetween('transactions.transaction_date', [$start, $end])
-                ->whereIn('transaction_details.product_id', $productIds)
-                ->groupBy('transaction_details.product_id')
-                ->get()
-                ->keyBy('product_id');
+        $applyPurchaseJoin = function ($builder) use ($purchaseAgg) {
+            return $builder->leftJoinSub($purchaseAgg, 'purchase_agg', function ($join) {
+                $join->on('products.id', '=', 'purchase_agg.product_id');
+            });
+        };
+
+        $totalsQuery = $applyPurchaseJoin((clone $query))
+            ->select(
+                'products.id',
+                'products.stock',
+                DB::raw('COALESCE(purchase_agg.purchase_qty, 0) as purchase_qty')
+            );
+
+        $productsForTotals = $totalsQuery->get();
+
+        $sort = $request->input('sort', 'priority');
+        $sort = in_array($sort, [
+            'priority',
+            'purchase_desc',
+            'purchase_asc',
+            'ratio_desc',
+            'ratio_asc',
+            'gap_desc',
+            'gap_asc',
+            'stock_desc',
+            'stock_asc',
+            'last_purchase_desc',
+            'last_purchase_asc',
+        ], true) ? $sort : 'priority';
+
+        $productsQuery = $applyPurchaseJoin((clone $query))
+            ->select(
+                'products.*',
+                DB::raw('COALESCE(purchase_agg.purchase_qty, 0) as purchase_qty'),
+                DB::raw('purchase_agg.last_purchase as last_purchase')
+            );
+
+        switch ($sort) {
+            case 'purchase_desc':
+                $productsQuery->orderByDesc('purchase_qty')->orderBy('products.stock');
+                break;
+            case 'purchase_asc':
+                $productsQuery->orderBy('purchase_qty')->orderBy('products.stock');
+                break;
+            case 'ratio_desc':
+                $productsQuery->orderByDesc(DB::raw(
+                    'CASE WHEN (COALESCE(purchase_agg.purchase_qty, 0) + products.stock) = 0
+                        THEN 0
+                        ELSE COALESCE(purchase_agg.purchase_qty, 0) / (COALESCE(purchase_agg.purchase_qty, 0) + products.stock)
+                    END'
+                ));
+                break;
+            case 'ratio_asc':
+                $productsQuery->orderBy(DB::raw(
+                    'CASE WHEN (COALESCE(purchase_agg.purchase_qty, 0) + products.stock) = 0
+                        THEN 0
+                        ELSE COALESCE(purchase_agg.purchase_qty, 0) / (COALESCE(purchase_agg.purchase_qty, 0) + products.stock)
+                    END'
+                ));
+                break;
+            case 'gap_desc':
+                $productsQuery->orderByDesc(DB::raw('COALESCE(purchase_agg.purchase_qty, 0) - products.stock'));
+                break;
+            case 'gap_asc':
+                $productsQuery->orderBy(DB::raw('COALESCE(purchase_agg.purchase_qty, 0) - products.stock'));
+                break;
+            case 'stock_desc':
+                $productsQuery->orderByDesc('products.stock');
+                break;
+            case 'stock_asc':
+                $productsQuery->orderBy('products.stock');
+                break;
+            case 'last_purchase_desc':
+                $productsQuery->orderByDesc('last_purchase');
+                break;
+            case 'last_purchase_asc':
+                $productsQuery->orderBy('last_purchase');
+                break;
+            case 'priority':
+            default:
+                $productsQuery->orderByRaw(
+                    'CASE
+                        WHEN products.stock <= ? THEN 1
+                        WHEN COALESCE(purchase_agg.purchase_qty, 0) >= products.stock AND COALESCE(purchase_agg.purchase_qty, 0) > 0 THEN 2
+                        ELSE 3
+                    END',
+                    [self::LOW_STOCK_THRESHOLD]
+                )->orderBy('products.stock');
+                break;
         }
 
+        $products = $productsQuery->paginate(25)->withQueryString();
+
         $products->setCollection(
-            $products->getCollection()->map(function ($product) use ($purchaseRows) {
-                $row = $purchaseRows->get($product->id);
-                $product->purchase_qty = (int) ($row->total_qty ?? 0);
-                $product->last_purchase = $row->last_purchase ?? null;
-                $denominator = $product->purchase_qty + $product->stock;
+            $products->getCollection()->map(function ($product) {
+                $product->purchase_qty = (int) ($product->purchase_qty ?? 0);
+                $denominator = $product->purchase_qty + (int) $product->stock;
                 $product->purchase_ratio = $denominator > 0
                     ? round(($product->purchase_qty / $denominator) * 100, 1)
                     : 0;
@@ -223,13 +305,12 @@ class AdminReportController extends Controller
             })
         );
 
-        $totalPurchased = (int) $purchaseRows->sum('total_qty');
+        $totalPurchased = (int) $productsForTotals->sum('purchase_qty');
         $totalStock = (int) $productsForTotals->sum('stock');
         $productCount = $productsForTotals->count();
 
-        $restockCandidates = $productsForTotals->filter(function ($product) use ($purchaseRows) {
-            $row = $purchaseRows->get($product->id);
-            $purchaseQty = (int) ($row->total_qty ?? 0);
+        $restockCandidates = $productsForTotals->filter(function ($product) {
+            $purchaseQty = (int) ($product->purchase_qty ?? 0);
 
             return $product->stock <= self::LOW_STOCK_THRESHOLD
                 || ($purchaseQty > 0 && $purchaseQty >= $product->stock);
@@ -243,6 +324,7 @@ class AdminReportController extends Controller
                 'end_date' => $end->toDateString(),
                 'category_id' => $request->input('category_id'),
                 'status' => $request->input('status', 'all'),
+                'sort' => $sort,
             ],
             'summary' => [
                 'rangeLabel' => $start->translatedFormat('d M Y') . ' - ' . $end->translatedFormat('d M Y'),

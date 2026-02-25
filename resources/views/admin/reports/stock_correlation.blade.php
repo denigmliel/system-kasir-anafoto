@@ -593,12 +593,12 @@
 @endpush
 
 @section('content')
-    @php
-        $today = \Illuminate\Support\Carbon::now();
-        $todayDate = $today->toDateString();
-        $range7 = $today->copy()->subDays(6)->toDateString();
-        $range30 = $today->copy()->subDays(29)->toDateString();
-        $range90 = $today->copy()->subDays(89)->toDateString();
+        @php
+            $today = \Illuminate\Support\Carbon::now();
+            $todayDate = $today->toDateString();
+            $range7 = $today->copy()->subDays(6)->toDateString();
+            $range30 = $today->copy()->subDays(29)->toDateString();
+            $range90 = $today->copy()->subDays(89)->toDateString();
 
         $overallDenom = $summary['totalPurchased'] + $summary['totalStock'];
         $overallRatio = $overallDenom > 0
@@ -636,19 +636,19 @@
             <div class="quick-filters">
                 <span class="quick-label">Filter cepat:</span>
                 <a
-                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range7, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status']]) }}"
+                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range7, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status'], 'sort' => $filters['sort'] ?? 'priority']) }}"
                     class="quick-pill {{ $isQuick7 ? 'active' : '' }}"
                 >
                     7 Hari
                 </a>
                 <a
-                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range30, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status']]) }}"
+                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range30, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status'], 'sort' => $filters['sort'] ?? 'priority']) }}"
                     class="quick-pill {{ $isQuick30 ? 'active' : '' }}"
                 >
                     30 Hari
                 </a>
                 <a
-                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range90, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status']]) }}"
+                    href="{{ route('admin.reports.stock_correlation', ['start_date' => $range90, 'end_date' => $todayDate, 'category_id' => $filters['category_id'], 'status' => $filters['status'], 'sort' => $filters['sort'] ?? 'priority']) }}"
                     class="quick-pill {{ $isQuick90 ? 'active' : '' }}"
                 >
                     90 Hari
@@ -693,6 +693,22 @@
                             <option value="all" @selected(($filters['status'] ?? 'all') === 'all')>Semua</option>
                             <option value="active" @selected(($filters['status'] ?? '') === 'active')>Aktif</option>
                             <option value="inactive" @selected(($filters['status'] ?? '') === 'inactive')>Tidak Aktif</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sort">Urutkan</label>
+                        <select id="sort" name="sort">
+                            <option value="priority" @selected(($filters['sort'] ?? 'priority') === 'priority')>Prioritas (Kritis - Aman)</option>
+                            <option value="purchase_desc" @selected(($filters['sort'] ?? '') === 'purchase_desc')>Pembelian (Tinggi - Rendah)</option>
+                            <option value="purchase_asc" @selected(($filters['sort'] ?? '') === 'purchase_asc')>Pembelian (Rendah - Tinggi)</option>
+                            <option value="ratio_desc" @selected(($filters['sort'] ?? '') === 'ratio_desc')>Rasio Serap (Tinggi - Rendah)</option>
+                            <option value="ratio_asc" @selected(($filters['sort'] ?? '') === 'ratio_asc')>Rasio Serap (Rendah - Tinggi)</option>
+                            <option value="gap_desc" @selected(($filters['sort'] ?? '') === 'gap_desc')>Selisih (Tinggi - Rendah)</option>
+                            <option value="gap_asc" @selected(($filters['sort'] ?? '') === 'gap_asc')>Selisih (Rendah - Tinggi)</option>
+                            <option value="stock_asc" @selected(($filters['sort'] ?? '') === 'stock_asc')>Stok (Terendah)</option>
+                            <option value="stock_desc" @selected(($filters['sort'] ?? '') === 'stock_desc')>Stok (Tertinggi)</option>
+                            <option value="last_purchase_desc" @selected(($filters['sort'] ?? '') === 'last_purchase_desc')>Terakhir Beli (Terbaru)</option>
+                            <option value="last_purchase_asc" @selected(($filters['sort'] ?? '') === 'last_purchase_asc')>Terakhir Beli (Terlama)</option>
                         </select>
                     </div>
                     <div class="filters-actions">
