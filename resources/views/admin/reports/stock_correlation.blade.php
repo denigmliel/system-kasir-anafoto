@@ -352,6 +352,20 @@
             border-bottom: none;
         }
 
+        .sort-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: inherit;
+            font-weight: 700;
+        }
+
+        .sort-link span {
+            font-size: 11px;
+            color: #b91c1c;
+        }
+
         .text-right {
             text-align: right;
         }
@@ -608,6 +622,9 @@
         $isQuick7 = $filters['start_date'] === $range7 && $filters['end_date'] === $todayDate;
         $isQuick30 = $filters['start_date'] === $range30 && $filters['end_date'] === $todayDate;
         $isQuick90 = $filters['start_date'] === $range90 && $filters['end_date'] === $todayDate;
+        $currentSort = $filters['sort'] ?? 'priority';
+        $ratioSortTarget = $currentSort === 'ratio_desc' ? 'ratio_asc' : 'ratio_desc';
+        $ratioSortLabel = $currentSort === 'ratio_desc' ? '▼' : ($currentSort === 'ratio_asc' ? '▲' : '⇅');
     @endphp
 
     <div class="report-shell">
@@ -783,7 +800,15 @@
                                 <th class="text-right" style="min-width: 120px;">Stok</th>
                                 <th class="text-right" style="min-width: 120px;">Pembelian</th>
                                 <th class="text-right" style="min-width: 110px;">Selisih</th>
-                                <th style="min-width: 170px;">Rasio Serap</th>
+                                <th style="min-width: 170px;">
+                                    <a
+                                        href="{{ request()->fullUrlWithQuery(['sort' => $ratioSortTarget]) }}"
+                                        class="sort-link"
+                                        title="Urutkan rasio serap"
+                                    >
+                                        Rasio Serap <span>{{ $ratioSortLabel }}</span>
+                                    </a>
+                                </th>
                                 <th style="min-width: 140px;">Terakhir</th>
                                 <th style="min-width: 120px;">Prioritas</th>
                             </tr>
