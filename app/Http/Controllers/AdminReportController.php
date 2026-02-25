@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 
 class AdminReportController extends Controller
@@ -237,6 +238,64 @@ class AdminReportController extends Controller
                 DB::raw('purchase_agg.last_purchase as last_purchase')
             );
 
+        $this->applyStockCorrelationSorting($productsQuery, $sort);
+
+        $products = $productsQuery->paginate(25)->withQueryString();
+
+        $products->setCollection(
+            $products->getCollection()->map(function ($product) {
+                $product->purchase_qty = (int) ($product->purchase_qty ?? 0);
+                $denominator = $product->purchase_qty + (int) $product->stock;
+                $product->purchase_ratio = $denominator > 0
+                    ? round(($product->purchase_qty / $denominator) * 100, 1)
+                    : 0;
+
+                return $product;
+            })
+        );
+
+        $totalPurchased = (int) $productsForTotals->sum('purchase_qty');
+        $totalStock = (int) $productsForTotals->sum('stock');
+        $productCount = $productsForTotals->count();
+
+        $restockCandidates = $productsForTotals->filter(function ($product) {
+            $purchaseQty = (int) ($product->purchase_qty ?? 0);
+
+            return $product->stock <= self::LOW_STOCK_THRESHOLD
+                || ($purchaseQty > 0 && $purchaseQty >= $product->stock);
+        })->count();
+
+        $chartPayload = $this->buildStockCorrelationChart(
+            $start,
+            $end,
+            $totalStock,
+            $productsForTotals->pluck('id')->all()
+        );
+
+        return view('admin.reports.stock_correlation', [
+            'products' => $products,
+            'categories' => $categories,
+            'filters' => [
+                'start_date' => $start->toDateString(),
+                'end_date' => $end->toDateString(),
+                'category_id' => $request->input('category_id'),
+                'status' => $request->input('status', 'all'),
+                'sort' => $sort,
+            ],
+            'summary' => [
+                'rangeLabel' => $start->translatedFormat('d M Y') . ' - ' . $end->translatedFormat('d M Y'),
+                'totalPurchased' => $totalPurchased,
+                'totalStock' => $totalStock,
+                'productCount' => $productCount,
+                'restockCandidates' => $restockCandidates,
+            ],
+            'lowStockThreshold' => self::LOW_STOCK_THRESHOLD,
+            'chart' => $chartPayload,
+        ]);
+    }
+
+    private function applyStockCorrelationSorting($productsQuery, string $sort): void
+    {
         switch ($sort) {
             case 'purchase_desc':
                 $productsQuery->orderByDesc('purchase_qty')->orderBy('products.stock');
@@ -290,50 +349,45 @@ class AdminReportController extends Controller
                 )->orderBy('products.stock');
                 break;
         }
+    }
 
-        $products = $productsQuery->paginate(25)->withQueryString();
-
-        $products->setCollection(
-            $products->getCollection()->map(function ($product) {
-                $product->purchase_qty = (int) ($product->purchase_qty ?? 0);
-                $denominator = $product->purchase_qty + (int) $product->stock;
-                $product->purchase_ratio = $denominator > 0
-                    ? round(($product->purchase_qty / $denominator) * 100, 1)
-                    : 0;
-
-                return $product;
+    private function buildStockCorrelationChart(Carbon $start, Carbon $end, int $totalStock, array $productIds): array
+    {
+        $dailyPurchases = TransactionDetail::select(
+                DB::raw('DATE(transactions.transaction_date) as purchase_date'),
+                DB::raw('SUM(transaction_details.quantity) as total_qty')
+            )
+            ->join('transactions', 'transactions.id', '=', 'transaction_details.transaction_id')
+            ->whereBetween('transactions.transaction_date', [$start, $end])
+            ->when(! empty($productIds), function ($query) use ($productIds) {
+                $query->whereIn('transaction_details.product_id', $productIds);
             })
-        );
+            ->groupBy(DB::raw('DATE(transactions.transaction_date)'))
+            ->orderBy('purchase_date')
+            ->get()
+            ->keyBy('purchase_date');
 
-        $totalPurchased = (int) $productsForTotals->sum('purchase_qty');
-        $totalStock = (int) $productsForTotals->sum('stock');
-        $productCount = $productsForTotals->count();
+        $labels = [];
+        $ratios = [];
+        $purchases = [];
 
-        $restockCandidates = $productsForTotals->filter(function ($product) {
-            $purchaseQty = (int) ($product->purchase_qty ?? 0);
+        $period = CarbonPeriod::create($start->copy()->startOfDay(), $end->copy()->startOfDay());
+        foreach ($period as $date) {
+            $dateKey = $date->toDateString();
+            $purchaseQty = (int) ($dailyPurchases->get($dateKey)->total_qty ?? 0);
+            $denominator = $purchaseQty + $totalStock;
+            $ratio = $denominator > 0 ? round(($purchaseQty / $denominator) * 100, 1) : 0;
 
-            return $product->stock <= self::LOW_STOCK_THRESHOLD
-                || ($purchaseQty > 0 && $purchaseQty >= $product->stock);
-        })->count();
+            $labels[] = $date->format('d M');
+            $ratios[] = $ratio;
+            $purchases[] = $purchaseQty;
+        }
 
-        return view('admin.reports.stock_correlation', [
-            'products' => $products,
-            'categories' => $categories,
-            'filters' => [
-                'start_date' => $start->toDateString(),
-                'end_date' => $end->toDateString(),
-                'category_id' => $request->input('category_id'),
-                'status' => $request->input('status', 'all'),
-                'sort' => $sort,
-            ],
-            'summary' => [
-                'rangeLabel' => $start->translatedFormat('d M Y') . ' - ' . $end->translatedFormat('d M Y'),
-                'totalPurchased' => $totalPurchased,
-                'totalStock' => $totalStock,
-                'productCount' => $productCount,
-                'restockCandidates' => $restockCandidates,
-            ],
-            'lowStockThreshold' => self::LOW_STOCK_THRESHOLD,
-        ]);
+        return [
+            'labels' => $labels,
+            'ratios' => $ratios,
+            'purchases' => $purchases,
+            'totalStock' => $totalStock,
+        ];
     }
 }

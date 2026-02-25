@@ -283,6 +283,42 @@
             margin-top: 4px;
         }
 
+        .chart-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            display: grid;
+            gap: 8px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 800;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .chart-subtitle {
+            margin: 3px 0 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 260px;
+        }
+
         .info-banner {
             background: #fff;
             border-radius: 12px;
@@ -580,6 +616,10 @@
             .table-modern td {
                 white-space: nowrap;
             }
+
+            .chart-wrap {
+                height: 220px;
+            }
         }
 
         @media (max-width: 640px) {
@@ -764,6 +804,21 @@
             </div>
         </div>
 
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h2 class="chart-title">Tren Rasio Serap Harian</h2>
+                    <p class="chart-subtitle">
+                        Rasio serap = pembelian harian / (pembelian harian + stok saat ini).
+                    </p>
+                </div>
+                <span class="hero-chip">Stok acuan: {{ number_format($chart['totalStock'] ?? 0) }}</span>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="ratio-trend-chart"></canvas>
+            </div>
+        </div>
+
         <div class="info-banner">
             <div class="info-title">Panduan Analitik</div>
             <div class="info-grid">
@@ -878,6 +933,7 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const combo = document.querySelector('.category-combobox');
@@ -945,6 +1001,65 @@
                 if (existing) {
                     input.value = existing.name;
                 }
+            }
+
+            const ratioCanvas = document.getElementById('ratio-trend-chart');
+            const chartPayload = @json($chart);
+
+            if (ratioCanvas && chartPayload && Array.isArray(chartPayload.labels)) {
+                const ctx = ratioCanvas.getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, ratioCanvas.clientHeight || 280);
+                gradient.addColorStop(0, 'rgba(185, 28, 28, 0.32)');
+                gradient.addColorStop(1, 'rgba(185, 28, 28, 0.02)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartPayload.labels,
+                        datasets: [
+                            {
+                                label: 'Rasio Serap (%)',
+                                data: chartPayload.ratios || [],
+                                borderColor: '#b91c1c',
+                                backgroundColor: gradient,
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 2,
+                                pointHoverRadius: 4,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: (value) => value + '%',
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.2)',
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                            },
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (item) => `${item.parsed.y}%`,
+                                },
+                            },
+                        },
+                    },
+                });
             }
         });
     </script>
